@@ -88,7 +88,7 @@ public class UserRegisterEtcController {
                 appUser.setPhone(phone);
                 try {
 
-                    emailSender.sendActiveMail(appUser);//发送激活邮件
+                    //emailSender.sendActiveMail(appUser);//发送激活邮件
                     //添加权限  默认新用户全部是 ROLE_USER 普通用户
                     appUserService.save(appUser);
                     UserRole userRole = new UserRole();
