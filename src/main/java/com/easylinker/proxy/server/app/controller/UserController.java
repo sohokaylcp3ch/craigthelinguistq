@@ -99,7 +99,7 @@ public class UserController {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         long appUserId=appUser.getId();
         DeviceGroup deviceGroup=deviceGroupService.findADeviceGroupById(appUserId);
-        if (device != null && deviceGroup != null && deviceGroup.getAppUser().getId().longValue() == appUser.getId().longValue()) {
+        if (device != null || deviceGroup != null || deviceGroup.getAppUser().getId().longValue() == appUser.getId().longValue()) {
             if (device.getAppUser() == null) {
                 device.setAppUser(appUser);
                 device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
@@ -108,6 +108,7 @@ public class UserController {
                 return ReturnResult.returnTipMessage(1, "设备绑定默认成功!");
             } else {
                 DeviceGroup newDeviceGroup = new DeviceGroup();
+                newDeviceGroup.setId(device.getId());
                 newDeviceGroup.setGroupName("DefaultGroup");
                 newDeviceGroup.setComment("默认分组");
                 newDeviceGroup.setAppUser(appUser);
