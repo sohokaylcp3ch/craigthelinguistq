@@ -259,25 +259,23 @@ public class UserRegisterEtcController {
 
     /**
      * 找回密码
-     * @param body
+     *
+     * @param
      * @return
      */
 
-    @RequestMapping(value = "/newPassword")
-    public JSONObject newPassword(@RequestBody JSONObject body) {
-        String email = body.getString("email");
-        String newPassword = body.getString("newPassword");
-        String newPasswordRetry = body.getString("newPasswordRetry");
+    @RequestMapping(value = "/newPassword/{emailBase64}/{newPassword}/{newPasswordRetry}")
+    public JSONObject newPassword(@PathVariable String emailBase64, @PathVariable String newPassword, @PathVariable String newPasswordRetry) {
 
-        if (email == null || newPassword == null || newPasswordRetry == null) {
+        if (emailBase64 == null || newPassword == null || newPasswordRetry == null) {
             return ReturnResult.returnTipMessage(0, "参数不全");
         } else {
-            AppUser appUser = appUserService.getAAppUserWithParameter(email);
+            AppUser appUser = appUserService.getAAppUserWithParameter(Base64.getDecoder().decode(emailBase64.toString()).toString());
             if (appUser != null) {
                 appUser.setPassword(MD5Generator.EncodingMD5(newPassword));
                 appUserService.save(appUser);
                 return ReturnResult.returnTipMessage(0, " 密码重置成功!");
-            }else {
+            } else {
                 return ReturnResult.returnTipMessage(0, " 用户不存在!");
             }
 
