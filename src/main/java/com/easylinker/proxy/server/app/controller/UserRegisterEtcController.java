@@ -88,7 +88,7 @@ public class UserRegisterEtcController {
                 appUser.setPhone(phone);
                 try {
 
-                    emailSender.sendActiveMail(appUser.getEmail());//发送激活邮件
+                    emailSender.sendActiveMail(appUser);//发送激活邮件
                     //添加权限  默认新用户全部是 ROLE_USER 普通用户
                     appUserService.save(appUser);
                     UserRole userRole = new UserRole();
@@ -191,7 +191,7 @@ public class UserRegisterEtcController {
             return ReturnResult.returnTipMessage(0, "用户不存在!");
         } else {
             try {
-                emailSender.sendActiveMail(appUser.getEmail());
+                emailSender.sendActiveMail(appUser);
                 return ReturnResult.returnTipMessage(1, "邮件发送成功!");
             } catch (Exception e) {
                 return ReturnResult.returnTipMessage(0, "邮件发送失败!");
@@ -235,9 +235,10 @@ public class UserRegisterEtcController {
     public JSONObject forgetPassword(@RequestBody JSONObject body) {
         String email = body.getString("email");
         if (email != null) {
+            AppUser appUser = appUserService.getAAppUserWithParameter(email);
             try {
-                if (appUserService.getAAppUserWithParameter(email) != null) {
-                    emailSender.sendForgetPasswordMail(email);
+                if (appUser != null) {
+                    emailSender.sendForgetPasswordMail(appUser);
                     return ReturnResult.returnTipMessage(1, "邮件发送成功!");
 
                 } else {

@@ -1,4 +1,4 @@
-package com.easylinker.proxy.server.app.config.securityconfig.handler;
+package com.easylinker.proxy.server.app.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;

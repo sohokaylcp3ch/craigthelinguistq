@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import javax.mail.internet.MimeMessage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Base64;
 
 @Component
 public class EmailSender {
@@ -57,54 +58,68 @@ public class EmailSender {
      * @param
      * @throws Exception
      */
-    public void sendActiveMail(String to) throws Exception {
+    public void sendActiveMail(AppUser appUser) throws Exception {
 
-        sendHtmlMail(username, to, "激活账户","激活账户");
+        sendHtmlMail(username, appUser.getEmail(), "激活账户", getActiveHTMLMailTemplate(appUser));
     }
 
     /**
      * 找回密码
+     * 这里发送一个邮件
+     * D:\github\EasyLinker\src\main\resources\html_active_user_template.html
      *
      * @param
      * @throws Exception
      */
-    public void sendForgetPasswordMail(String to) throws Exception {
-        sendHtmlMail(username, to, "激活账户","找回密码");
+    public void sendForgetPasswordMail(AppUser appUser) throws Exception {
+        sendHtmlMail(username, appUser.getEmail(), "找回密码", getForgetPasswordHTMLMailTemplate(appUser));
     }
 
 
     /**
-     * 解析配置文件
+     * 构造激活用户的邮件
      *
      * @return
      */
 
-    public String getSMSTemplate(AppUser appUser) throws Exception {
+    private String getActiveHTMLMailTemplate(AppUser appUser) throws Exception {
 
+        return readTemplate("/html_active_user_template.html").toString()
+                .replace("${url}", appUser.getId().toString());
+
+    }
+
+    /**
+     * 构造忘记密码的邮件
+     *
+     * @param appUser
+     * @return
+     * @throws Exception
+     */
+    private String getForgetPasswordHTMLMailTemplate(AppUser appUser) throws Exception {
+
+        return readTemplate("/html_forget_password_template.html").toString()
+                .replace("${emailBase64}", Base64.getEncoder().encodeToString(appUser.getEmail().getBytes()));
+
+    }
+
+    /**
+     * 读取文件内容
+     *
+     * @param path
+     * @return
+     * @throws Exception
+     */
+    private String readTemplate(String path) throws Exception {
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(this.getClass().getResourceAsStream("/mail_template.json")));
-        StringBuffer pluginConfigJsonStringBuffer = new StringBuffer();
+        StringBuffer content = new StringBuffer();
         String line;
         while ((line = bufferedReader.readLine()) != null) {
-            pluginConfigJsonStringBuffer.append(line);
+            content.append(line);
         }
         bufferedReader.close();
-
-        JSONObject smsTemplateJson = JSONObject.parseObject(pluginConfigJsonStringBuffer.toString());
-        JSONArray contentJsonArray = smsTemplateJson.getJSONArray("content");
-        String title = smsTemplateJson.getString("title");
-        String group = smsTemplateJson.getString("group");
-        String url = smsTemplateJson.getString("url");
-
-        BufferedReader htmlBufferedReader = new BufferedReader(
-                new InputStreamReader(this.getClass().getResourceAsStream("/html_mail_template.html")));
-        StringBuffer htmlBuffer = new StringBuffer();
-        String html;
-        while ((html = htmlBufferedReader.readLine()) != null) {
-            htmlBuffer.append(html);
-        }
-        return htmlBuffer.toString().replace("${title}", title).replace("${group}", group).replace("${url}", appUser.getId().toString());
-
+        return content.toString();
     }
 
 }
