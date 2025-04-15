@@ -268,6 +268,7 @@ def on_connect(c, userdata, flags, rc):
         timer = threading.Timer(2.0, send_data)
         timer.start()
     else:
+    
         print("Connected Failed! ")
         client.disconnect()
 def on_message(client, userdata, msg):
