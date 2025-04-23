@@ -84,7 +84,7 @@ public class UserController {
             deviceGroup.setComment(comment);
             deviceGroup.setAppUser(appUser);
             deviceGroupService.save(deviceGroup);
-            return ReturnResult.returnTipMessage(0, "分组增加成功!");
+            return ReturnResult.returnTipMessage(1, "分组增加成功!");
         } else {
             return ReturnResult.returnTipMessage(0, "分组名称已经存在!");
 

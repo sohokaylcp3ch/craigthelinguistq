@@ -34,7 +34,7 @@ public class ReturnResult {
     public static JSONObject returnDataMessage(int code, String tipMessage, JSONObject data) {
 
         JSONObject returnJson = new JSONObject();
-        returnJson.put("code", code);
+        returnJson.put("state", code);
         returnJson.put("message", tipMessage);
         returnJson.put("data", data);
         return returnJson;
@@ -51,7 +51,7 @@ public class ReturnResult {
     public static JSONObject returnDataMessage(int code, String tipMessage, JSONArray data) {
 
         JSONObject returnJson = new JSONObject();
-        returnJson.put("code", code);
+        returnJson.put("state", code);
         returnJson.put("data", data);
         returnJson.put("message", tipMessage);
         return returnJson;
