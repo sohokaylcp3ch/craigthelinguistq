@@ -47,6 +47,7 @@ public class DeviceService {
         List<Device> dataList = deviceRepository.findAllByAppUser(appUser, pageable);
         for (Device device : dataList) {
             JSONObject deviceJson = new JSONObject();
+            deviceJson.put("id",device.getId());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
@@ -64,6 +65,7 @@ public class DeviceService {
         List<Device> dataList = deviceRepository.findAllByAppUserAndDeviceGroup(appUser, deviceGroup, pageable);
         for (Device device : dataList) {
             JSONObject deviceJson = new JSONObject();
+            deviceJson.put("id",device.getId());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
@@ -85,6 +87,7 @@ public class DeviceService {
             } else {
                 deviceJson.put("isBind", true);
             }
+            deviceJson.put("id",device.getId());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("openId", device.getOpenId());
             deviceJson.put("name", device.getDeviceName());
