@@ -16,6 +16,11 @@ public class CorsConfig {
         return corsConfiguration;
     }
 
+
+    /**
+     * 跨域配置
+     * @return
+     */
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
