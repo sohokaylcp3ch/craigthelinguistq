@@ -8,6 +8,7 @@ import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceGroup;
 import com.easylinker.proxy.server.app.model.user.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -42,30 +43,47 @@ public class DeviceService {
     }
 
 
-    public JSONArray getAllDevicesByAppUser(AppUser appUser, Pageable pageable) {
+    public JSONObject getAllDevicesByAppUser(AppUser appUser, Pageable pageable) {
         JSONArray data = new JSONArray();
-        List<Device> dataList = deviceRepository.findAllByAppUser(appUser, pageable);
-        for (Device device : dataList) {
+        JSONObject pageJson = new JSONObject();
+        Page<Device> dataPage = deviceRepository.findAllByAppUser(appUser, pageable);
+
+        pageJson.put("page", dataPage.getNumber());
+        pageJson.put("total", dataPage.getTotalPages());
+        pageJson.put("size", dataPage.getSize());
+        pageJson.put("isLast", dataPage.isLast());
+        pageJson.put("isFirst", dataPage.isFirst());
+
+        for (Device device : dataPage.getContent()) {
             JSONObject deviceJson = new JSONObject();
-            deviceJson.put("id",device.getId());
+            deviceJson.put("id", device.getId());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             deviceJson.put("location", device.getLocation().toString());
             deviceJson.put("describe", device.getDeviceDescribe());
-
             data.add(deviceJson);
         }
-        return data;
+        pageJson.put("data", data);
+        return pageJson;
     }
 
 
-    public JSONArray getAllDevicesByAppUserAndGroup(AppUser appUser, DeviceGroup deviceGroup, Pageable pageable) {
+    public JSONObject getAllDevicesByAppUserAndGroup(AppUser appUser, DeviceGroup deviceGroup, Pageable pageable) {
         JSONArray data = new JSONArray();
-        List<Device> dataList = deviceRepository.findAllByAppUserAndDeviceGroup(appUser, deviceGroup, pageable);
-        for (Device device : dataList) {
+        Page<Device> dataPage = deviceRepository.findAllByAppUserAndDeviceGroup(appUser, deviceGroup, pageable);
+
+
+        JSONObject pageJson = new JSONObject();
+        pageJson.put("page", dataPage.getNumber());
+        pageJson.put("total", dataPage.getTotalPages());
+        pageJson.put("size", dataPage.getSize());
+        pageJson.put("isLast", dataPage.isLast());
+        pageJson.put("isFirst", dataPage.isFirst());
+
+        for (Device device : dataPage.getContent()) {
             JSONObject deviceJson = new JSONObject();
-            deviceJson.put("id",device.getId());
+            deviceJson.put("id", device.getId());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
@@ -73,21 +91,28 @@ public class DeviceService {
             deviceJson.put("location", device.getLocation().toString());
             data.add(deviceJson);
         }
-        return data;
+        pageJson.put("data", data);
+        return pageJson;
     }
 
 
-    public JSONArray getAllDevices(Pageable pageable) {
+    public JSONObject getAllDevices(Pageable pageable) {
         JSONArray data = new JSONArray();
-        List<Device> dataList = deviceRepository.findAll(pageable).getContent();
-        for (Device device : dataList) {
+        Page<Device> dataPage = deviceRepository.findAll(pageable);
+        JSONObject pageJson = new JSONObject();
+        pageJson.put("page", dataPage.getNumber());
+        pageJson.put("total", dataPage.getTotalPages());
+        pageJson.put("size", dataPage.getSize());
+        pageJson.put("isLast", dataPage.isLast());
+        pageJson.put("isFirst", dataPage.isFirst());
+        for (Device device : dataPage.getContent()) {
             JSONObject deviceJson = new JSONObject();
             if (device.getAppUser() == null) {
                 deviceJson.put("isBind", false);
             } else {
                 deviceJson.put("isBind", true);
             }
-            deviceJson.put("id",device.getId());
+            deviceJson.put("id", device.getId());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("openId", device.getOpenId());
             deviceJson.put("name", device.getDeviceName());
@@ -96,7 +121,8 @@ public class DeviceService {
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             data.add(deviceJson);
         }
-        return data;
+        pageJson.put("data", data);
+        return pageJson;
     }
 
     public List<Device> findAllDevice() {
