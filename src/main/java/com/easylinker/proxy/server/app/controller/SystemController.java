@@ -26,16 +26,16 @@ public class SystemController {
         JSONObject systemProperty = new JSONObject();
         OperatingSystemMXBean mem = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         Properties sysProperty = System.getProperties(); //系统属性
-        systemProperty.put("java.version", sysProperty.getProperty("java.version"));
-        systemProperty.put("java.vendor", sysProperty.getProperty("java.vendor"));
-        systemProperty.put("java.home", sysProperty.getProperty("java.home").replace("\\","_"));
-        systemProperty.put("java.vm.version", sysProperty.getProperty("java.vm.version"));
-        systemProperty.put("os.name", sysProperty.getProperty("os.name"));
-        systemProperty.put("os.arch", sysProperty.getProperty("os.arch"));
-        systemProperty.put("os.version", sysProperty.getProperty("os.version"));
-        systemProperty.put("sun.cpu.isalist", sysProperty.getProperty("sun.cpu.isalist"));
-        systemProperty.put("total.ram", mem.getTotalPhysicalMemorySize() / 1024 / 1024 + "MB");
-        systemProperty.put("available.ram", mem.getFreePhysicalMemorySize() / 1024 / 1024 + "MB");
+        systemProperty.put("java_version", sysProperty.getProperty("java.version"));
+        systemProperty.put("java_vendor", sysProperty.getProperty("java.vendor"));
+        systemProperty.put("java_home", sysProperty.getProperty("java.home").replace("\\","_"));
+        systemProperty.put("java_vm_version", sysProperty.getProperty("java.vm.version"));
+        systemProperty.put("os_name", sysProperty.getProperty("os.name"));
+        systemProperty.put("os_arch", sysProperty.getProperty("os.arch"));
+        systemProperty.put("os_version", sysProperty.getProperty("os.version"));
+        systemProperty.put("sun_cpu_isalist", sysProperty.getProperty("sun.cpu.isalist"));
+        systemProperty.put("total_ram", mem.getTotalPhysicalMemorySize() / 1024 / 1024 + "MB");
+        systemProperty.put("available_ram", mem.getFreePhysicalMemorySize() / 1024 / 1024 + "MB");
         systemProperty.put("totalMemory", mem.getFreePhysicalMemorySize() / 1024 / 1024 + "MB");
         systemProperty.put("freeMemory", Runtime.getRuntime().freeMemory() / 1024 + "MB");
         systemProperty.put("maxMemory", Runtime.getRuntime().maxMemory() / 1024 + "MB");
