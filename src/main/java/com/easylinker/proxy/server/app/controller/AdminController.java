@@ -270,4 +270,32 @@ public class AdminController {
         return ReturnResult.returnDataMessage(1, "获取成功!", appUserService.getAllUsers());
 
     }
+
+    /**
+     * 获取单个设备的细节
+     *
+     * @return
+     */
+    @RequestMapping(value = "/getDeviceDetail/{deviceId}", method = RequestMethod.GET)
+    public JSONObject getDeviceDetail(@PathVariable Long deviceId) {
+
+        Device device = deviceService.findADevice(deviceId);
+        if (device != null) {
+            JSONObject deviceJson = new JSONObject();
+            deviceJson.put("id", device.getId());
+            deviceJson.put("isOnline", device.isOnline());
+            deviceJson.put("barCode", device.getBarCode());
+            deviceJson.put("openId", device.getOpenId());
+            deviceJson.put("name", device.getDeviceName());
+            deviceJson.put("describe", device.getDeviceDescribe());
+            deviceJson.put("location", device.getLocation().getLocationDescribe());
+            deviceJson.put("lastActiveDate", device.getLastActiveDate());
+            return ReturnResult.returnDataMessage(1, "查询成功!", deviceJson);
+        } else {
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+        }
+
+
+    }
+
 }

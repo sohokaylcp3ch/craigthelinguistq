@@ -25,7 +25,6 @@ public class DeviceController {
     DeviceDataService deviceDataService;
 
 
-
     /**
      * 获取设备产生的数据
      *
@@ -42,5 +41,7 @@ public class DeviceController {
         }
 
     }
+
+
 
 }
