@@ -1,7 +1,9 @@
 package com.easylinker.proxy.server.app.config.mqttconfig.handler;
 
 import com.alibaba.fastjson.JSONObject;
+import com.easylinker.proxy.server.app.bean.RealTimeMessage;
 import com.easylinker.proxy.server.app.config.mqttconfig.MqttMessageSender;
+import com.easylinker.proxy.server.app.constants.mqtt.RealTimeType;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.service.DeviceService;
 import com.easylinker.proxy.server.app.utils.HttpTool;
@@ -56,7 +58,10 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
                         device.setOnline(true);
                         deviceService.save(device);
                         logger.info("设备:[" + device.getDeviceName() + "]上线");
-                        mqttMessageSender.sendRealTimeDeviceMessage(device, "设备:[" + device.getDeviceName() + "]上线");
+                        JSONObject realTimeJson = new JSONObject();
+                        realTimeJson.put("device", device.getId());
+                        realTimeJson.put("location", device.getLocation());
+                        mqttMessageSender.sendRealTimePureMessage(new RealTimeMessage(realTimeJson, RealTimeType.ONLINE));
                     }
                 }
             } catch (Exception e) {
@@ -78,7 +83,11 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
                         device.setLastActiveDate(new Date());
                         deviceService.save(device);
                         logger.info("设备:[" + device.getDeviceName() + "]下线");
-                        mqttMessageSender.sendRealTimeDeviceMessage(device, "设备:[" + device.getDeviceName() + "]下线");
+                        JSONObject realTimeJson = new JSONObject();
+                        realTimeJson.put("device", device.getId());
+                        realTimeJson.put("location", device.getLocation());
+                        mqttMessageSender.sendRealTimePureMessage(new RealTimeMessage(realTimeJson, RealTimeType.OFFLINE));
+
                     }
                 }
             } catch (Exception e) {

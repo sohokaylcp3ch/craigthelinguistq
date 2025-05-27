@@ -1,7 +1,9 @@
 package com.easylinker.proxy.server.app.config.mqttconfig.handler;
 
 import com.alibaba.fastjson.JSONObject;
+import com.easylinker.proxy.server.app.bean.RealTimeMessage;
 import com.easylinker.proxy.server.app.config.mqttconfig.MqttMessageSender;
+import com.easylinker.proxy.server.app.constants.mqtt.RealTimeType;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceData;
 import com.easylinker.proxy.server.app.service.DeviceDataService;
@@ -48,7 +50,7 @@ public class InMessageHandler implements MessageHandler {
                 JSONObject dataJson = JSONObject.parseObject(message.getPayload().toString());
                 Device device = deviceService.findADevice(openId);
                 if (device != null) {
-                    mqttMessageSender.sendRealTimePureMessage("数据传输中!");
+                    //开死后传输数据
                     if (device.getAppUser() == null) {
                         logger.info("默认分组的设备，数据不记录!");
                     } else {
@@ -61,7 +63,10 @@ public class InMessageHandler implements MessageHandler {
                         deviceData.setData(dataJson.toString());
                         deviceDataService.save(deviceData);
                         logger.info("数据保存成功!");
-                        mqttMessageSender.sendRealTimeDeviceMessage(device, "设备:[" + device.getDeviceName() + "]数据传输成功!");
+                        JSONObject realTimeJson = new JSONObject();
+                        realTimeJson.put("device", device.getId());
+                        realTimeJson.put("location", device.getLocation());
+                        mqttMessageSender.sendRealTimePureMessage(new RealTimeMessage(realTimeJson, RealTimeType.DATA_RECEIVED));
 
                     }
                 } else {

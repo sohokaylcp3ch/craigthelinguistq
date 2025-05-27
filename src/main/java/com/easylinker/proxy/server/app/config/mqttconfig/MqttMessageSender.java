@@ -1,6 +1,7 @@
 package com.easylinker.proxy.server.app.config.mqttconfig;
 
 import com.alibaba.fastjson.JSONObject;
+import com.easylinker.proxy.server.app.bean.RealTimeMessage;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.utils.HttpTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class MqttMessageSender {
      * @param message
      * @throws Exception
      */
-    public void sendRealTimePureMessage(String message) throws Exception {
+    public void sendRealTimePureMessage(RealTimeMessage message) throws Exception {
         JSONObject messageJson = new JSONObject();
         messageJson.put("topic", "OUT/REAL_TIME");
         messageJson.put("payload", message);
