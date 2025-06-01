@@ -50,7 +50,7 @@ public class InMessageHandler implements MessageHandler {
                 JSONObject dataJson = JSONObject.parseObject(message.getPayload().toString());
                 Device device = deviceService.findADevice(openId);
                 if (device != null) {
-                    //开死后传输数据
+                    //开始后传输数据
                     if (device.getAppUser() == null) {
                         logger.info("默认分组的设备，数据不记录!");
                     } else {
