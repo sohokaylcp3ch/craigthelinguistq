@@ -3,10 +3,12 @@ package com.easylinker.proxy.server.app.bean;
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.constants.mqtt.RealTimeType;
 
+import java.io.Serializable;
+
 /**
  * 实时数据模型
  */
-public class RealTimeMessage {
+public class RealTimeMessage implements Serializable{
     private JSONObject message;
     private RealTimeType type;
 

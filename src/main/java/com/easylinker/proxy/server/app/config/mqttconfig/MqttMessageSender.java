@@ -41,10 +41,10 @@ public class MqttMessageSender {
      * @param message
      * @throws Exception
      */
-    public void sendRealTimePureMessage(RealTimeMessage message) throws Exception {
+    public void sendRealTimePureMessage(JSONObject message) throws Exception {
         JSONObject messageJson = new JSONObject();
         messageJson.put("topic", "OUT/REAL_TIME");
-        messageJson.put("payload", message);
+        messageJson.put("payload", message.toJSONString());
         messageJson.put("retain", false);
         messageJson.put("qos", 1);
         messageJson.put("client_id", "SERVER_PROXY");

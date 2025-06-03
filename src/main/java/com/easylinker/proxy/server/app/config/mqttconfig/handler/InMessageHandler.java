@@ -64,9 +64,9 @@ public class InMessageHandler implements MessageHandler {
                         deviceDataService.save(deviceData);
                         logger.info("数据保存成功!");
                         JSONObject realTimeJson = new JSONObject();
+                        realTimeJson.put("type", RealTimeType.DATA_RECEIVED);
                         realTimeJson.put("device", device.getId());
-                        realTimeJson.put("location", device.getLocation());
-                        mqttMessageSender.sendRealTimePureMessage(new RealTimeMessage(realTimeJson, RealTimeType.DATA_RECEIVED));
+                        mqttMessageSender.sendRealTimePureMessage(realTimeJson);
 
                     }
                 } else {

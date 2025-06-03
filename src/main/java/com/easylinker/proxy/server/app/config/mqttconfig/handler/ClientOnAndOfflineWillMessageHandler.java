@@ -59,13 +59,12 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
                         deviceService.save(device);
                         logger.info("设备:[" + device.getDeviceName() + "]上线");
                         JSONObject realTimeJson = new JSONObject();
+                        realTimeJson.put("type", RealTimeType.ONLINE);
                         realTimeJson.put("device", device.getId());
-                        realTimeJson.put("location", device.getLocation());
-                        mqttMessageSender.sendRealTimePureMessage(new RealTimeMessage(realTimeJson, RealTimeType.ONLINE));
+                        mqttMessageSender.sendRealTimePureMessage(realTimeJson);
                     }
                 }
             } catch (Exception e) {
-                //e.printStackTrace();
                 logger.error("解析消息时出现了格式错误!");
             }
 
@@ -84,9 +83,9 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
                         deviceService.save(device);
                         logger.info("设备:[" + device.getDeviceName() + "]下线");
                         JSONObject realTimeJson = new JSONObject();
+                        realTimeJson.put("type", RealTimeType.OFFLINE);
                         realTimeJson.put("device", device.getId());
-                        realTimeJson.put("location", device.getLocation());
-                        mqttMessageSender.sendRealTimePureMessage(new RealTimeMessage(realTimeJson, RealTimeType.OFFLINE));
+                        mqttMessageSender.sendRealTimePureMessage(realTimeJson);
 
                     }
                 }
