@@ -37,6 +37,7 @@ public class AppUserService {
 
     /**
      * 获取所有的数据
+     *
      * @return
      */
     public JSONArray getAllUsers() {
@@ -44,6 +45,7 @@ public class AppUserService {
         List<AppUser> appUsers = appUserRepository.findAll();
         for (AppUser appUser : appUsers) {
             JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id", appUser.getId());
             jsonObject.put("username", appUser.getUsername());
             jsonObject.put("email", appUser.getEmail());
             jsonObject.put("phone", appUser.getPhone());
