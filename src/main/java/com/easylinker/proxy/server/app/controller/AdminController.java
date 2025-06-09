@@ -182,10 +182,11 @@ public class AdminController {
     }
 
     /**
-     * 管理员绑定设备
+     * 管理员绑定设备建议换成V2
      *
      * @return
      */
+    @Deprecated
     @RequestMapping(value = "/bindDevicesToUser", method = RequestMethod.POST)
     public JSONObject bindDevicesToUser(@RequestBody JSONObject body) {
         //[111,222,333,4444]->appUser
@@ -229,14 +230,12 @@ public class AdminController {
                     newGroup.setGroupName("group_" + appUser.getUsername());
                     newGroup.setAppUser(appUser);
                     newGroup.setComment("用户:" + appUser.getUsername() + "的分组");
+                    deviceGroupService.save(newGroup);
                     for (Object o : deviceIdArray) {
                         Device device = deviceService.findADevice((Long.parseLong(o.toString())));
                         if (device != null && device.getAppUser() == null) {
                             successCount += 1;
-
-                            deviceGroupService.save(newGroup);
                             device.setAppUser(appUser);
-                            device.setDeviceGroup(newGroup);
                             device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + newGroup.getId() + "/" + device.getId());
                             deviceService.save(device);
                         } else {
@@ -257,6 +256,63 @@ public class AdminController {
 
 
     }
+
+
+    /**
+     * 管理员绑定设备新版接口
+     *
+     * @return
+     */
+    @RequestMapping(value = "/bindDevicesToUserApiV2", method = RequestMethod.POST)
+    public JSONObject bindDevicesToUserApiV2(@RequestBody JSONObject body) {
+        Long userId = body.getLongValue("userId");
+        String groupName = body.getString("groupName");
+        JSONArray deviceIdArray;
+        try {
+            deviceIdArray = body.getJSONArray("deviceIdArray");
+        } catch (Exception e) {
+            return ReturnResult.returnTipMessage(1, "deviceIdArray应该为数组!");
+
+        }
+        if (userId == null || groupName == null) {
+            return ReturnResult.returnTipMessage(0, "参数不全!");
+        }if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+            return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
+        }
+        else {
+            int total = deviceIdArray.size();
+            int successCount = 0;
+            AppUser appUser = appUserService.findAAppUser(userId);
+            if (appUser != null) {
+                //更新ACL
+                DeviceGroup newGroup = new DeviceGroup();
+                newGroup.setGroupName(groupName);
+                newGroup.setAppUser(appUser);
+                newGroup.setComment("用户:" + appUser.getUsername() + "的分组");
+                deviceGroupService.save(newGroup);
+                for (Object o : deviceIdArray) {
+                    Device device = deviceService.findADevice((Long.parseLong(o.toString())));
+                    if (device != null && device.getAppUser() == null) {
+                        successCount += 1;
+                        device.setAppUser(appUser);
+                        device.setDeviceGroup(newGroup);
+                        device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + newGroup.getId() + "/" + device.getId());
+                        deviceService.save(device);
+                    }
+
+                }
+                return ReturnResult.returnTipMessage(1, "结果:总数[" + total + "]成功[" + successCount + "]失败[" + (total - successCount) + "],如果有失败，可能原因:部分设备ID不存在!");
+
+
+            }else {
+                return ReturnResult.returnTipMessage(0, "用户不存在!");
+
+            }
+
+        }
+
+    }
+
 
     /**
      * 查看当前所有的用户

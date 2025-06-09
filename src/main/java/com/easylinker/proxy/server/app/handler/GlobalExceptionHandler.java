@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public JSONObject defaultErrorHandler(Exception e) {
         JSONObject resultJson = new JSONObject();
-        e.printStackTrace();
+        logger.error("出现了异常:"+e.getMessage());
         if (e instanceof NoHandlerFoundException) {
             resultJson.put("state", 0);
             resultJson.put("message", "Error code 404! 不存在该路由!");
@@ -38,9 +38,9 @@ public class GlobalExceptionHandler {
             resultJson.put("state", 0);
             resultJson.put("message", "Error code 5001! 丢失必要参数!");
 
-        } else if (e instanceof HttpMessageNotReadableException) {
+        } else if (e instanceof org.springframework.http.converter.HttpMessageNotReadableException) {
             resultJson.put("state", 0);
-            resultJson.put("message", "Error code 5002! 请求体不全!!");
+            resultJson.put("message", "Error code 5002! 请求体格式不正确!!");
 
 
         } else if (e instanceof MethodArgumentTypeMismatchException) {
