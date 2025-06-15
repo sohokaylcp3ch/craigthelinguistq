@@ -40,23 +40,23 @@ public class UserController {
      * @return
      */
 
-    @RequestMapping(value = "/bind/{deviceId}")
-    public JSONObject bind(@PathVariable Long deviceId) {
+    @RequestMapping(value = "/bind/{deviceId}/{groupId}")
+    public JSONObject bind(@PathVariable Long deviceId, @PathVariable Long groupId) {
         Device device = deviceService.findADevice(deviceId);
-        if (device != null) {
+        DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupById(groupId);
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (device != null && deviceGroup != null && deviceGroup.getAppUser().getId() == appUser.getId()) {
             if (device.getAppUser() == null) {
-                AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 device.setAppUser(appUser);
+                device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
+                device.setDeviceGroup(deviceGroup);
                 deviceService.save(device);
                 return ReturnResult.returnTipMessage(1, "设备绑定成功!");
             } else {
                 return ReturnResult.returnTipMessage(0, "设备已经绑定!");
-
             }
-
-
         } else {
-            return ReturnResult.returnTipMessage(1, "设备不存在!");
+            return ReturnResult.returnTipMessage(0, "设备或者分组不存在!");
 
         }
     }
