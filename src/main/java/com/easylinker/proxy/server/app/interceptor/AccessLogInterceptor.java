@@ -1,5 +1,6 @@
 package com.easylinker.proxy.server.app.interceptor;
 
+import com.easylinker.proxy.server.app.utils.HttpTool;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -14,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 public class AccessLogInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+       //http://ip.taobao.com/service/getIpInfo.php?ip=
+
         System.out.println(getIp(request));
         return true;
     }

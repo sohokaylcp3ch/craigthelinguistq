@@ -17,27 +17,13 @@ import java.io.IOException;
 @SpringBootTest
 public class ApplicationTests {
 
-    static BufferedReader BR = null;
-    static long Count = 0;
-
-
 
     @Test
     public void shouldReturnDefaultMessage() throws Exception {
-        Trvs(new File("F:\\sucheon_project\\sucheon-master\\src\\main\\java\\com\\easylinker\\proxy\\server\\app"));
-        System.out.print(Count);
+
     }
 
 
 
-    static void Trvs(File f) throws IOException {
-        File[] childs = f.listFiles();
-        for (int i = 0; i < childs.length; i++) {
-            if (childs[i].isFile()) {
-                BR = new BufferedReader(new FileReader(childs[i]));
-                while (BR.readLine() != null) Count += 1;
-            } else Trvs(childs[i]);
-        }
-    }
 
 }
