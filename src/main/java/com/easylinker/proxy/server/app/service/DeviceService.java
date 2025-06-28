@@ -7,6 +7,7 @@ import com.easylinker.proxy.server.app.dao.DeviceRepository;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceGroup;
 import com.easylinker.proxy.server.app.model.user.AppUser;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -138,9 +139,24 @@ public class DeviceService {
 
     public List<Device> findAllDevice() {
 
-
         return deviceRepository.findAll();
     }
 
+    /**
+     * 获取当前用户的设备情况
+     * @param appUser
+     * @return
+     */
+
+    public JSONObject getCurrentState(AppUser appUser) {
+        JSONObject data = new JSONObject();
+        int onLineCount = deviceRepository.findAllByAppUserAndIsOnline(appUser, true).size();
+        int total = deviceRepository.findAll().size();
+        data.put("onLine", onLineCount);
+        data.put("offLine", total - onLineCount);
+        data.put("total", total);
+        return data;
+
+    }
 
 }

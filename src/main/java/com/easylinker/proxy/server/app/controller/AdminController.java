@@ -276,10 +276,10 @@ public class AdminController {
         }
         if (userId == null || groupName == null) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
-        }if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
-            return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
         }
-        else {
+        if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+            return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
+        } else {
             int total = deviceIdArray.size();
             int successCount = 0;
             AppUser appUser = appUserService.findAAppUser(userId);
@@ -304,7 +304,7 @@ public class AdminController {
                 return ReturnResult.returnTipMessage(1, "结果:总数[" + total + "]成功[" + successCount + "]失败[" + (total - successCount) + "],如果有失败，可能原因:部分设备ID不存在!");
 
 
-            }else {
+            } else {
                 return ReturnResult.returnTipMessage(0, "用户不存在!");
 
             }
@@ -326,6 +326,21 @@ public class AdminController {
         return ReturnResult.returnDataMessage(1, "获取成功!", appUserService.getAllUsers());
 
     }
+
+    /**
+     * 页码当前所有的用户
+     *
+     * @return
+     */
+    @RequestMapping(value = "/getAllUsersByPage/{page}/{size}", method = RequestMethod.GET)
+
+    public JSONObject getAllUsersByPage(@PathVariable int page, @PathVariable int size) {
+
+        return ReturnResult.returnDataMessage(1, "获取成功!", appUserService.getAllUsersByPage(
+        PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+
+    }
+
 
     /**
      * 获取单个设备的细节

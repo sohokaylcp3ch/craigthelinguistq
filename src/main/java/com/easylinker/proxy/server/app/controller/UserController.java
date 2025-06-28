@@ -183,5 +183,19 @@ public class UserController {
 
     }
 
+    /**
+     * 用户查看自己的设备状况
+     * 1 设备量
+     * 2 在线数目
+     * 3 离线数目
+     * 4 最近数据曲线
+     * 5
+     */
+    @RequestMapping(value = "/getCurrentState", method = RequestMethod.GET)
+    public JSONObject getCurrentState() {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getCurrentState(appUser));
+    }
+
 
 }

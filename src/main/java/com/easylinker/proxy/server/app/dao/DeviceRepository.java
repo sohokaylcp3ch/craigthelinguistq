@@ -19,7 +19,7 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
 
     Page<Device> findAllByAppUserAndDeviceGroup(AppUser appUser, DeviceGroup deviceGroup, Pageable pageable);
 
-    Page<Device> findAllByDeviceGroup(DeviceGroup deviceGroup,Pageable pageable);
+    List<Device> findAllByAppUserAndIsOnline(AppUser appUser,Boolean online);
 
 
 
