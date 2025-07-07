@@ -15,12 +15,13 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     Device findTopByOpenId(Long openId);
 
 
+    List<Device> findAllByAppUser(AppUser appUser);
+
     Page<Device> findAllByAppUser(AppUser appUser, Pageable pageable);
 
     Page<Device> findAllByAppUserAndDeviceGroup(AppUser appUser, DeviceGroup deviceGroup, Pageable pageable);
 
-    List<Device> findAllByAppUserAndIsOnline(AppUser appUser,Boolean online);
-
+    List<Device> findAllByAppUserAndIsOnline(AppUser appUser, Boolean online);
 
 
 }

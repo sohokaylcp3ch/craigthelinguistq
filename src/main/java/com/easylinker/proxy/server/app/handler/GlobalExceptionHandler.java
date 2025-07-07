@@ -28,6 +28,9 @@ public class GlobalExceptionHandler {
     public JSONObject defaultErrorHandler(Exception e) {
         JSONObject resultJson = new JSONObject();
         logger.error("出现了异常:"+e.getMessage());
+        logger.error("------------------------------------------------------");
+        e.printStackTrace();
+        logger.error("------------------------------------------------------");
         if (e instanceof NoHandlerFoundException) {
             resultJson.put("state", 0);
             resultJson.put("message", "Error code 404! 不存在该路由!");

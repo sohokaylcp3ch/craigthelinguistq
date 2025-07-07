@@ -151,7 +151,7 @@ public class DeviceService {
     public JSONObject getCurrentState(AppUser appUser) {
         JSONObject data = new JSONObject();
         int onLineCount = deviceRepository.findAllByAppUserAndIsOnline(appUser, true).size();
-        int total = deviceRepository.findAll().size();
+        int total = deviceRepository.findAllByAppUser(appUser).size();
         data.put("onLine", onLineCount);
         data.put("offLine", total - onLineCount);
         data.put("total", total);

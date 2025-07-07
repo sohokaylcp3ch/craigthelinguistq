@@ -52,34 +52,48 @@ public class HttpTool {
     }
 
     /**
-     * Connection →keep-alive
-     * Content-Encoding →gzip
-     * Content-Type →text/html;charset=UTF-8
-     * Date →Sat, 21 Apr 2018 10:49:39 GMT
-     * Transfer-Encoding →chunked
-     * Vary →Accept-Encoding
+     * Connection →close
+     * Content-Length →121
+     * Content-Type →application/json; charset=utf-8
+     * DPOOL_HEADER →tyr105
+     * DPOOL_LB7_HEADER →skuld144
+     * Date →Sat, 21 Apr 2018 14:34:08 GMT
+     * Server →Sina
      */
 
     public String get(String url) throws Exception {
+        final String[] result = {""};
 
         Request request = new Request.Builder()
-                .addHeader("Connection", "keep-alive")
-                .addHeader("Content-Encoding", "gzip")
-                .addHeader("Content-Type", "text/html;charset=UTF-8")
-                .addHeader("Date", new Date().toString())
-                .addHeader("Transfer-Encoding", "chunked")
-                .addHeader("Vary", "Accept-Encoding")
-                .addHeader("Server", "MochiWeb/1.0 (Any of you quaids got a smint?)")
+                .addHeader("Connection","close")
+                .addHeader("Content-Length","121")
+                .addHeader("Content-Type","application/json; charset=utf-8")
+                .addHeader("DPOOL_HEADER","tyr105")
+                .addHeader("DPOOL_LB7_HEADER","skuld144")
+                .addHeader("Date",new Date().toString())
+                .addHeader("Server","Sina")
                 .url(url)
-                .get()
                 .build();
-        return client.newCall(request).execute().body().string();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                result[0] = "{}";
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                System.out.println(response.body().string());
+
+                result[0] = response.body().string();
+            }
+        });
+        return result[0];
+
     }
 
     public static void main(String[] args) throws Exception {
-        //http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=
-        //System.out.println(new HttpTool().get("http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=211.162.236.68"));
-        System.out.println(new HttpTool().get("http://ip.taobao.com/service/getIpInfo.php?ip=211.162.236.68"));
+        System.out.println(new HttpTool().get("http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=211.162.236.68"));
     }
 
 }
