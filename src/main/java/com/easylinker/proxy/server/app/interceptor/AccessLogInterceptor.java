@@ -25,7 +25,6 @@ public class AccessLogInterceptor implements HandlerInterceptor {
         AccessLog accessLog = new AccessLog();
         accessLog.setIp(getIp(request));
         accessLogService.save(accessLog);
-        System.out.println(getIp(request));
         return true;
     }
 
