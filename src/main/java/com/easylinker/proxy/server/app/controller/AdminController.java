@@ -29,6 +29,7 @@ import java.util.Date;
 @RequestMapping("/admin")
 @PreAuthorize(value = "hasRole('ROLE_ADMIN') AND hasRole('ROLE_USER')")
 public class AdminController {
+    private static final String REG_1_Z="(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
     @Autowired
     LocationService locationService;
     @Autowired
@@ -60,9 +61,9 @@ public class AdminController {
             return ReturnResult.returnTipMessage(0, "参数不全!");
 
 
-        } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+        } else if (!groupName.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
-        } else if (!deviceNamePrefix.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+        } else if (!deviceNamePrefix.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备名称前缀必须用英文字幕或者数字组合且不下6位!");
         } else {
 
@@ -85,7 +86,7 @@ public class AdminController {
             location.setDevice(device);
             location.setLatitude(latitude);
             location.setLongitude(longitude);
-            location.setLocationDescribe("位于:[" + locationDescribe + "]的设备!");
+            location.setLocationDescribe(locationDescribe);
             locationService.save(location);//先保存位置
             device.setLocation(location);
             deviceService.save(device);
@@ -116,10 +117,10 @@ public class AdminController {
             return ReturnResult.returnTipMessage(0, "至少选择创建一个设备!");
 
 
-        } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+        } else if (!groupName.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
 
-        } else if (!deviceNamePrefix.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+        } else if (!deviceNamePrefix.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备名称前缀必须用英文字幕或者数字组合且不下6位!");
         } else {
             DeviceGroup deviceGroup = new DeviceGroup();
@@ -130,14 +131,14 @@ public class AdminController {
             Location location = new Location();
             location.setLatitude(latitude);
             location.setLongitude(longitude);
-            location.setLocationDescribe("位于:[" + locationDescribe + "]的设备!");
+            location.setLocationDescribe(locationDescribe);
             locationService.save(location);//先保存位置
             for (int i = 0; i < deviceSum; i++) {
                 Device device = new Device();
                 device.setDeviceGroup(deviceGroup);
                 device.setLastActiveDate(new Date());
                 device.setDeviceName(deviceNamePrefix + "_Auto_" + i);
-                device.setDeviceDescribe("Device_Auto_Batch_Product_Num_" + i);
+                device.setDeviceDescribe("Product_" + i);
                 device.setClientId(device.getId().toString());
                 //设置ACL  默认值
                 device.setTopic("IN/DEVICE/DEFAULT_USER/" + deviceGroup.getId() + "/" + device.getId());
@@ -277,7 +278,7 @@ public class AdminController {
         if (userId == null || groupName == null) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
         }
-        if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+        if (!groupName.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
         } else {
             int total = deviceIdArray.size();

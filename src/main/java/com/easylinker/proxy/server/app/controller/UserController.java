@@ -25,6 +25,7 @@ import java.util.List;
  * 用户的业务逻辑层
  */
 public class UserController {
+    private static final String REG_1_Z="(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
 
     @Autowired
     AppUserService appUserService;
@@ -75,7 +76,7 @@ public class UserController {
         String comment = body.getString("comment");
         if (groupName == null || comment == null) {
             return ReturnResult.returnTipMessage(0, "请求参数不完整!");
-        } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+        } else if (!groupName.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文或者数字组合且不下6位!");
         } else if (deviceGroupService.getADeviceGroupByName(groupName) == null) {
             AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -104,7 +105,7 @@ public class UserController {
         String comment = body.getString("comment");
         if (groupName == null || comment == null || deviceId == null) {
             return ReturnResult.returnTipMessage(0, "请求参数不完整!");
-        } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+        } else if (!groupName.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文或者数字组合且不下6位!");
 
         } else {

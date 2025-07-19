@@ -59,6 +59,8 @@ public class DeviceService {
         for (Device device : dataPage.getContent()) {
             JSONObject deviceJson = new JSONObject();
             deviceJson.put("id", device.getId());
+            deviceJson.put("groupId",device.getDeviceGroup().getId());
+            deviceJson.put("groupName",device.getDeviceGroup().getGroupName());
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("barCode", device.getBarCode());
