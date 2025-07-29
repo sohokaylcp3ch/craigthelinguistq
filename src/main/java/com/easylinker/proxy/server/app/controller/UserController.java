@@ -189,8 +189,6 @@ public class UserController {
      * 1 设备量
      * 2 在线数目
      * 3 离线数目
-     * 4 最近数据曲线
-     * 5
      */
     @RequestMapping(value = "/getCurrentState", method = RequestMethod.GET)
     public JSONObject getCurrentState() {
