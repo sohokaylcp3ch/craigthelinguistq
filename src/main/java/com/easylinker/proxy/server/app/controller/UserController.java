@@ -25,7 +25,7 @@ import java.util.List;
  * 用户的业务逻辑层
  */
 public class UserController {
-    private static final String REG_1_Z="(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
+    private static final String REG_1_Z = "(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
 
     @Autowired
     AppUserService appUserService;
@@ -194,6 +194,37 @@ public class UserController {
     public JSONObject getCurrentState() {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getCurrentState(appUser));
+    }
+
+    /**
+     * 修改分组备注
+     */
+    @RequestMapping(value = "/changeGroupName", method = RequestMethod.POST)
+    public JSONObject changeGroupName(@RequestBody JSONObject body) {
+        Long groupId = body.getLongValue("groupId");
+        String groupName = body.getString("groupName");
+        String comment = body.getString("comment");
+        if (groupId == null || groupName == null || comment == null) {
+            return ReturnResult.returnTipMessage(0, "请求参数不完整!");
+        } else if (!groupName.matches(REG_1_Z)) {
+            return ReturnResult.returnTipMessage(0, "设备组必须用英文或者数字组合且不下6位!");
+        } else {
+            AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupById(groupId);
+            if (deviceGroup != null && deviceGroup.getAppUser().getId() == appUser.getId()) {
+                deviceGroup.setGroupName(groupName);
+                deviceGroup.setComment(comment);
+                deviceGroupService.save(deviceGroup);
+                return ReturnResult.returnTipMessage(1, "修改成功!");
+
+            }{
+                return ReturnResult.returnTipMessage(0 ,"分组不存在!");
+
+            }
+
+        }
+
     }
 
 
