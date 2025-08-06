@@ -199,8 +199,8 @@ public class UserController {
     /**
      * 修改分组备注
      */
-    @RequestMapping(value = "/changeGroupName", method = RequestMethod.POST)
-    public JSONObject changeGroupName(@RequestBody JSONObject body) {
+    @RequestMapping(value = "/updateGroup", method = RequestMethod.POST)
+    public JSONObject updateGroup(@RequestBody JSONObject body) {
         Long groupId = body.getLongValue("groupId");
         String groupName = body.getString("groupName");
         String comment = body.getString("comment");
