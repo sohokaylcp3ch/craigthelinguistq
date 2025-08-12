@@ -37,7 +37,7 @@ public class DeviceController {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Device device = deviceService.findADevice(deviceId);
-        if (device != null && device.getAppUser().getId() == appUser.getId()) {
+        if (device != null && device.getAppUser().getId().longValue() == appUser.getId().longValue()) {
             JSONObject deviceJson = new JSONObject();
             deviceJson.put("id", device.getId());
             deviceJson.put("barCode", device.getBarCode());

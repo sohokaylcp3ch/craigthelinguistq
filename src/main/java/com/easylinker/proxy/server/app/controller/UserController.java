@@ -212,7 +212,7 @@ public class UserController {
             AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
             DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupById(groupId);
-            if (deviceGroup != null && deviceGroup.getAppUser().getId() == appUser.getId()) {
+            if ((deviceGroup != null)&&(deviceGroup.getAppUser().getId().longValue()==appUser.getId().longValue())) {
                 deviceGroup.setGroupName(groupName);
                 deviceGroup.setComment(comment);
                 deviceGroupService.save(deviceGroup);
