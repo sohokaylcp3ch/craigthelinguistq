@@ -29,7 +29,7 @@ import java.util.Date;
 @RequestMapping("/admin")
 @PreAuthorize(value = "hasRole('ROLE_ADMIN') AND hasRole('ROLE_USER')")
 public class AdminController {
-    private static final String REG_1_Z="(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
+    private static final String REG_1_Z = "(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
     @Autowired
     LocationService locationService;
     @Autowired
@@ -69,7 +69,7 @@ public class AdminController {
 
             Device device = new Device();
             DeviceGroup deviceGroup = new DeviceGroup();
-            deviceGroup.setComment(groupName);
+            deviceGroup.setComment("默认分组");
             deviceGroup.setGroupName(groupName);
             deviceGroupService.save(deviceGroup);//保存分组
             device.setDeviceGroup(deviceGroup);
@@ -125,7 +125,7 @@ public class AdminController {
         } else {
             DeviceGroup deviceGroup = new DeviceGroup();
             deviceGroup.setAppUser(null);
-            deviceGroup.setComment(groupName);
+            deviceGroup.setComment("默认分组");
             deviceGroup.setGroupName(groupName);
             deviceGroupService.save(deviceGroup);//所有新增加的设备，分组一样,保存分组
             Location location = new Location();
@@ -184,82 +184,8 @@ public class AdminController {
 
     /**
      * 管理员绑定设备建议换成V2
-     *
-     * @return
-     */
-    @Deprecated
-    @RequestMapping(value = "/bindDevicesToUser", method = RequestMethod.POST)
-    public JSONObject bindDevicesToUser(@RequestBody JSONObject body) {
-        //[111,222,333,4444]->appUser
-        Long userId = body.getLongValue("userId");
-        Long groupId = body.getLongValue("groupId");
-        JSONArray deviceIdArray;
-        try {
-            deviceIdArray = body.getJSONArray("deviceIdArray");
-        } catch (Exception e) {
-            return ReturnResult.returnTipMessage(1, "deviceIdArray应该为数组!");
-
-        }
-
-        if (userId == null || deviceIdArray == null || groupId == null) {
-            return ReturnResult.returnTipMessage(0, "参数不全!");
-        } else {
-            int total = deviceIdArray.size();
-            int successCount = 0;
-            AppUser appUser = appUserService.findAAppUser(userId);
-            if (appUser != null) {
-                DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupById(groupId);
-                if (deviceGroup != null) {
-                    for (Object o : deviceIdArray) {
-                        Device device = deviceService.findADevice((Long.parseLong(o.toString())));
-                        if (device != null && device.getAppUser() == null) {
-                            successCount += 1;
-                            device.setAppUser(appUser);
-                            device.setDeviceGroup(deviceGroup);
-                            //更新ACL
-                            device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
-                            deviceGroupService.save(deviceGroup);
-                            deviceService.save(device);
-                        }
-
-                    }
-                    return ReturnResult.returnTipMessage(1, "结果:总数[" + total + "]成功[" + successCount + "]失败[" + (total - successCount) + "]");
-
-                } else {
-                    //更新ACL
-                    DeviceGroup newGroup = new DeviceGroup();
-                    newGroup.setGroupName("group_" + appUser.getUsername());
-                    newGroup.setAppUser(appUser);
-                    newGroup.setComment("用户:" + appUser.getUsername() + "的分组");
-                    deviceGroupService.save(newGroup);
-                    for (Object o : deviceIdArray) {
-                        Device device = deviceService.findADevice((Long.parseLong(o.toString())));
-                        if (device != null && device.getAppUser() == null) {
-                            successCount += 1;
-                            device.setAppUser(appUser);
-                            device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + newGroup.getId() + "/" + device.getId());
-                            deviceService.save(device);
-                        } else {
-                            System.out.println("ID:[" + o.toString() + "]对应的设备不存在,绑定失败!");
-                        }
-
-                    }
-
-                    return ReturnResult.returnTipMessage(1, "结果:总数[" + total + "]成功[" + successCount + "]失败[" + (total - successCount) + "],如果有失败，可能原因:部分设备ID不存在!");
-                }
-
-
-            } else {
-                return ReturnResult.returnTipMessage(0, "用户不存在!");
-
-            }
-        }
-
-
-    }
-
-
-    /**
+     * <p>
+     * /**
      * 管理员绑定设备新版接口
      *
      * @return
@@ -275,7 +201,7 @@ public class AdminController {
             return ReturnResult.returnTipMessage(1, "deviceIdArray应该为数组!");
 
         }
-        if (userId == null || groupName == null) {
+        if (userId == null || groupName == null || deviceIdArray == null) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
         }
         if (!groupName.matches(REG_1_Z)) {
@@ -338,7 +264,7 @@ public class AdminController {
     public JSONObject getAllUsersByPage(@PathVariable int page, @PathVariable int size) {
 
         return ReturnResult.returnDataMessage(1, "获取成功!", appUserService.getAllUsersByPage(
-        PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
 
     }
 
