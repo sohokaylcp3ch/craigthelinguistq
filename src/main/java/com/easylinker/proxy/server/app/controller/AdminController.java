@@ -190,8 +190,8 @@ public class AdminController {
      *
      * @return
      */
-    @RequestMapping(value = "/bindDevicesToUserApiV2", method = RequestMethod.POST)
-    public JSONObject bindDevicesToUserApiV2(@RequestBody JSONObject body) {
+    @RequestMapping(value = "/bindDevicesToUser", method = RequestMethod.POST)
+    public JSONObject bindDevicesToUser(@RequestBody JSONObject body) {
         Long userId = body.getLongValue("userId");
         String groupName = body.getString("groupName");
         JSONArray deviceIdArray;
