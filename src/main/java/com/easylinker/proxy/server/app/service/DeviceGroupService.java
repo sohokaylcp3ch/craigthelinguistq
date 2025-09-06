@@ -9,6 +9,8 @@ import com.easylinker.proxy.server.app.model.device.DeviceGroup;
 import com.easylinker.proxy.server.app.model.user.AppUser;
 import com.sun.javafx.geom.transform.BaseTransform;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -49,14 +51,13 @@ public class DeviceGroupService {
         for (DeviceGroup group : deviceGroupList) {
             JSONObject dataJson = new JSONObject();
             dataJson.put("id", group.getId());
-            dataJson.put("user", group.getAppUser().getId());
             dataJson.put("name", group.getGroupName());
             dataJson.put("comment", group.getComment());
+            dataJson.put("user", group.getAppUser().getId());
             data.add(dataJson);
         }
         return data;
     }
-
 
 
     public void delete(DeviceGroup deviceGroup) {
@@ -71,5 +72,46 @@ public class DeviceGroupService {
 
     public DeviceGroup findADeviceGroupByName(String groupName) {
         return deviceGroupRepository.findTopByGroupName(groupName);
+    }
+
+    /**
+     * 分页获取分组
+     *
+     * @param pageable
+     * @return
+     */
+    public JSONArray getAllDeviceGroupByPage(AppUser appUser, Pageable pageable) {
+        JSONArray data = new JSONArray();
+        Page<DeviceGroup> page = deviceGroupRepository.findAllByAppUser(appUser, pageable);
+        for (DeviceGroup group : page.getContent()) {
+            JSONObject dataJson = new JSONObject();
+            dataJson.put("name", group.getGroupName());
+            dataJson.put("user", group.getAppUser().getId());
+            dataJson.put("comment", group.getComment());
+            dataJson.put("id", group.getId());
+            data.add(dataJson);
+        }
+        return data;
+    }
+
+    /**
+     * 分页获取所有分组
+     *
+     * @param pageable
+     * @return
+     */
+
+    public JSONArray getAllDeviceGroupByPage(Pageable pageable) {
+        JSONArray data = new JSONArray();
+        Page<DeviceGroup> page = deviceGroupRepository.findAll(pageable);
+        for (DeviceGroup group : page.getContent()) {
+            JSONObject dataJson = new JSONObject();
+            dataJson.put("id", group.getId());
+            dataJson.put("user", group.getAppUser().getId());
+            dataJson.put("name", group.getGroupName());
+            dataJson.put("comment", group.getComment());
+            data.add(dataJson);
+        }
+        return data;
     }
 }

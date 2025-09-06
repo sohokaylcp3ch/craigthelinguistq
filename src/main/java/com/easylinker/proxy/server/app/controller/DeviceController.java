@@ -5,6 +5,7 @@ import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
 import com.easylinker.proxy.server.app.model.user.AppUser;
 import com.easylinker.proxy.server.app.service.DeviceDataService;
+import com.easylinker.proxy.server.app.service.DeviceGroupService;
 import com.easylinker.proxy.server.app.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,8 @@ public class DeviceController {
     DeviceService deviceService;
     @Autowired
     DeviceDataService deviceDataService;
+    @Autowired
+    DeviceGroupService deviceGroupService;
 
     /**
      * 获取单个设备的细节
@@ -72,5 +75,13 @@ public class DeviceController {
 
     }
 
+//    /**
+//     * 分页获取分组
+//     */
+//    @RequestMapping(value = "/getAllDeviceGroupByPage/{page}/{size}", method = RequestMethod.GET)
+//    public JSONObject getAllDeviceGroupByPage(@PathVariable int page, @PathVariable int size) {
+//        return ReturnResult.returnDataMessage(1, "获取成功!", deviceGroupService.getAllDeviceGroupByPage(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+//
+//    }
 
 }

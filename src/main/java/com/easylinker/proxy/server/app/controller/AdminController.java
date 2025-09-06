@@ -14,10 +14,12 @@ import com.easylinker.proxy.server.app.service.DeviceGroupService;
 import com.easylinker.proxy.server.app.service.DeviceService;
 import com.easylinker.proxy.server.app.service.LocationService;
 import com.sun.javafx.geom.transform.BaseTransform;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -215,7 +217,7 @@ public class AdminController {
                 DeviceGroup newGroup = new DeviceGroup();
                 newGroup.setGroupName(groupName);
                 newGroup.setAppUser(appUser);
-                newGroup.setComment("用户:" + appUser.getUsername() + "的分组");
+                newGroup.setComment("默认分组" + new Date());
                 deviceGroupService.save(newGroup);
                 for (Object o : deviceIdArray) {
                     Device device = deviceService.findADevice((Long.parseLong(o.toString())));
@@ -293,6 +295,17 @@ public class AdminController {
             return ReturnResult.returnTipMessage(0, "设备不存在!");
         }
 
+
+    }
+
+
+    /**
+     * 分页获取分组
+     */
+    @RequestMapping(value = "/getAllGroupByPage/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllGroupByPage(@PathVariable int page, @PathVariable int size) {
+        return ReturnResult.returnDataMessage(1, "获取成功!",
+                deviceGroupService.getAllDeviceGroupByPage(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
 
     }
 

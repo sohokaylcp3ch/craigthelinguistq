@@ -154,6 +154,18 @@ public class UserController {
 
     }
 
+    /**
+     * 分页获取分组
+     */
+    @RequestMapping(value = "/getAllGroupByPage/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllGroupByPage(@PathVariable int page, @PathVariable int size) {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return ReturnResult.returnDataMessage(1, "获取成功!",
+                deviceGroupService.getAllDeviceGroupByPage(appUser, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+
+    }
+
 
     /**
      * 用户获取所有的设备
@@ -212,14 +224,15 @@ public class UserController {
             AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
             DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupById(groupId);
-            if ((deviceGroup != null)&&(deviceGroup.getAppUser().getId().longValue()==appUser.getId().longValue())) {
+            if ((deviceGroup != null) && (deviceGroup.getAppUser().getId().longValue() == appUser.getId().longValue())) {
                 deviceGroup.setGroupName(groupName);
                 deviceGroup.setComment(comment);
                 deviceGroupService.save(deviceGroup);
                 return ReturnResult.returnTipMessage(1, "修改成功!");
 
-            }{
-                return ReturnResult.returnTipMessage(0 ,"分组不存在!");
+            }
+            {
+                return ReturnResult.returnTipMessage(0, "分组不存在!");
 
             }
 
