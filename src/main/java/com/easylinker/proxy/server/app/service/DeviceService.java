@@ -2,6 +2,7 @@ package com.easylinker.proxy.server.app.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.easylinker.proxy.server.app.constants.result.ReturnResult;
 import com.easylinker.proxy.server.app.dao.DeviceGroupRepository;
 import com.easylinker.proxy.server.app.dao.DeviceRepository;
 import com.easylinker.proxy.server.app.model.device.Device;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +61,8 @@ public class DeviceService {
         for (Device device : dataPage.getContent()) {
             JSONObject deviceJson = new JSONObject();
             deviceJson.put("id", device.getId());
-            deviceJson.put("groupId",device.getDeviceGroup().getId());
-            deviceJson.put("groupName",device.getDeviceGroup().getGroupName());
+            deviceJson.put("groupId", device.getDeviceGroup().getId());
+            deviceJson.put("groupName", device.getDeviceGroup().getGroupName());
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("barCode", device.getBarCode());
@@ -146,6 +148,7 @@ public class DeviceService {
 
     /**
      * 获取当前用户的设备情况
+     *
      * @param appUser
      * @return
      */
@@ -161,4 +164,40 @@ public class DeviceService {
 
     }
 
+
+    /**
+     * 获取设备详情
+     */
+    public JSONObject getDeviceDetail(@PathVariable Long deviceId) {
+
+        Device device = deviceRepository.findTopById(deviceId);
+        if (device != null) {
+            JSONObject deviceJson = new JSONObject();
+            deviceJson.put("id", device.getId());
+            if (device.getAppUser() != null) {
+                deviceJson.put("userId", device.getAppUser().getId().intValue());
+            } else {
+                deviceJson.put("user", "暂未绑定用户");
+            }
+
+            DeviceGroup deviceGroup = device.getDeviceGroup();
+            JSONObject groupJson = new JSONObject();
+            groupJson.put("name", deviceGroup.getGroupName());
+            groupJson.put("name", deviceGroup.getComment());
+            groupJson.put("id", deviceGroup.getId());
+            deviceJson.put("group", groupJson);
+            deviceJson.put("isOnline", device.isOnline());
+            deviceJson.put("barCode", device.getBarCode());
+            deviceJson.put("openId", device.getOpenId());
+            deviceJson.put("name", device.getDeviceName());
+            deviceJson.put("describe", device.getDeviceDescribe());
+            deviceJson.put("location", device.getLocation().getLocationDescribe());
+            deviceJson.put("lastActiveDate", device.getLastActiveDate());
+            return ReturnResult.returnDataMessage(1, "查询成功!", deviceJson);
+        } else {
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+        }
+
+
+    }
 }
