@@ -182,9 +182,15 @@ public class DeviceService {
 
             DeviceGroup deviceGroup = device.getDeviceGroup();
             JSONObject groupJson = new JSONObject();
-            groupJson.put("name", deviceGroup.getGroupName());
-            groupJson.put("name", deviceGroup.getComment());
-            groupJson.put("id", deviceGroup.getId());
+            if (device.getDeviceGroup() != null) {
+                groupJson.put("name", deviceGroup.getGroupName());
+                groupJson.put("comment", deviceGroup.getComment());
+                groupJson.put("id", deviceGroup.getId());
+            } else {
+                groupJson.put("name", "暂未分组!");
+            }
+
+
             deviceJson.put("group", groupJson);
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("barCode", device.getBarCode());

@@ -31,7 +31,7 @@ import java.util.Date;
 @RequestMapping("/admin")
 @PreAuthorize(value = "hasRole('ROLE_ADMIN') AND hasRole('ROLE_USER')")
 public class AdminController {
-    private static final String REG_1_Z = "(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
+    private static final String REG_1_Z = "^[\\u4e00-\\u9fff\\w]{6,10}$";
     @Autowired
     LocationService locationService;
     @Autowired
@@ -64,24 +64,24 @@ public class AdminController {
 
 
         } else if (!groupName.matches(REG_1_Z)) {
-            return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
+            return ReturnResult.returnTipMessage(0, "设备组名字不下6位!");
         } else if (!deviceNamePrefix.matches(REG_1_Z)) {
-            return ReturnResult.returnTipMessage(0, "设备名称前缀必须用英文字幕或者数字组合且不下6位!");
+            return ReturnResult.returnTipMessage(0, "设备名称前缀不下6位!");
         } else {
 
             Device device = new Device();
-            DeviceGroup deviceGroup = new DeviceGroup();
-            deviceGroup.setComment("默认分组");
-            deviceGroup.setGroupName(groupName);
-            deviceGroupService.save(deviceGroup);//保存分组
-            device.setDeviceGroup(deviceGroup);
+            //DeviceGroup deviceGroup = new DeviceGroup();
+//            deviceGroup.setComment("默认分组");
+//            deviceGroup.setGroupName(groupName);
+//            deviceGroupService.save(deviceGroup);//保存分组
+            device.setDeviceGroup(null);
             device.setAppUser(null);
             device.setLastActiveDate(new Date());
             device.setDeviceName(deviceNamePrefix + "_" + deviceName);
             device.setDeviceDescribe("Device_" + deviceDescribe);
             device.setClientId(device.getId().toString());
             //设置ACL  默认值
-            device.setTopic("IN/DEVICE/DEFAULT_USER/" + deviceGroup.getId() + "/" + device.getId());
+            device.setTopic("IN/DEVICE/DEFAULT_USER/" + "DEFAULT_GROUP" + "/" + device.getId());
             device.setBarCode(Image2Base64Tool.imageToBase64String(QRCodeGenerator.string2BarCode(device.getId().toString())));
             device.setOpenId(device.getId().toString());
             Location location = new Location();
@@ -120,16 +120,16 @@ public class AdminController {
 
 
         } else if (!groupName.matches(REG_1_Z)) {
-            return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
+            return ReturnResult.returnTipMessage(0, "设备组名不下6位!");
 
         } else if (!deviceNamePrefix.matches(REG_1_Z)) {
-            return ReturnResult.returnTipMessage(0, "设备名称前缀必须用英文字幕或者数字组合且不下6位!");
+            return ReturnResult.returnTipMessage(0, "设备名称不下6位!");
         } else {
-            DeviceGroup deviceGroup = new DeviceGroup();
-            deviceGroup.setAppUser(null);
-            deviceGroup.setComment("默认分组");
-            deviceGroup.setGroupName(groupName);
-            deviceGroupService.save(deviceGroup);//所有新增加的设备，分组一样,保存分组
+//            //DeviceGroup deviceGroup = new DeviceGroup();
+//            deviceGroup.setAppUser(null);
+//            deviceGroup.setComment("默认分组");
+//            deviceGroup.setGroupName(groupName);
+//            deviceGroupService.save(deviceGroup);//所有新增加的设备，分组一样,保存分组
             Location location = new Location();
             location.setLatitude(latitude);
             location.setLongitude(longitude);
@@ -137,13 +137,13 @@ public class AdminController {
             locationService.save(location);//先保存位置
             for (int i = 0; i < deviceSum; i++) {
                 Device device = new Device();
-                device.setDeviceGroup(deviceGroup);
+                device.setDeviceGroup(null);
                 device.setLastActiveDate(new Date());
                 device.setDeviceName(deviceNamePrefix + "_Auto_" + i);
                 device.setDeviceDescribe("Product_" + i);
                 device.setClientId(device.getId().toString());
                 //设置ACL  默认值
-                device.setTopic("IN/DEVICE/DEFAULT_USER/" + deviceGroup.getId() + "/" + device.getId());
+                device.setTopic("IN/DEVICE/DEFAULT_USER/" + "DEFAULT_GROUP" + "/" + device.getId());
                 device.setBarCode(Image2Base64Tool.imageToBase64String(QRCodeGenerator.string2BarCode(device.getId().toString())));
                 device.setOpenId(device.getId().toString());
                 device.setLocation(location);
@@ -207,7 +207,7 @@ public class AdminController {
             return ReturnResult.returnTipMessage(0, "参数不全!");
         }
         if (!groupName.matches(REG_1_Z)) {
-            return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
+            return ReturnResult.returnTipMessage(0, "设备组名不下6位!");
         } else {
             int total = deviceIdArray.size();
             int successCount = 0;
