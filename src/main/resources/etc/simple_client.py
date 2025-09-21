@@ -1,8 +1,6 @@
+import threading
 import paho.mqtt.client as mqtt
 import time
-import json
-import threading
-from multiprocessing import Process
 '''
 0: Connection successful
 1: Connection refused - incorrect protocol version
@@ -12,37 +10,56 @@ from multiprocessing import Process
 5: Connection refused - not authorised
 6-255: Currently unused.
 '''
-#IN/DEVICE/DEFAULT_USER/XMRJY11/1522404991788
-CLIENT_OPENID="1522404991788"
-CLIENT_NAME="Sucheon_Auto_Batch_P"
-CLIENT_GROUP="XMRJY11"
-client = mqtt.Client(CLIENT_NAME)
-data={"feature2":"feature2","feature3":"feature3","std":1.1,"meanLf":3.1,"feature4":"feature4","peakFrequency":"peakFrequency","feature1":"feature1","bandSpectrum":"bandSpectrum","peakPowers":"peakPowers","meanHf":2.1}
+class SDK(threading.Thread):
 
-def send_data():
-    global  client
-    client.publish("IN/DEVICE/DEFAULT_USER/"+CLIENT_GROUP+"/"+CLIENT_OPENID, str(data))
-    timer = threading.Timer(2.0, send_data)
-    timer.start()
-def on_disconnect(a,b,c):
-    print("on_disconnect",a,b,c)
+    def __init__(self,host,port,open_id,group,user_id,on_message):
+        super(SDK, self).__init__()
+        self.open_id=open_id
+        self.group=group
+        self.user_id=user_id
+        self.host=host
+        self.port=port
+        self.client = mqtt.Client(self.open_id)
+        self.client.username_pw_set(open_id,open_id)
+        self.client.on_message=on_message
+        self.client.on_connect=self.on_connect
+        self.client.on_disconnect=self.on_disconnect
 
-def on_connect(c, userdata, flags, rc):
-    print("connect state:",rc)
-    if rc==0:
-        print("Connected Success! ")
-        client.subscribe("OUT/DEVICE/1521688389380/DEFAULT_GROUP/"+CLIENT_OPENID)
-        timer = threading.Timer(2.0, send_data)
-        timer.start()
-    else:
-        print("Connected Failed! ")
-        client.disconnect()
-def on_message(client, userdata, msg):
-    print("Received Data:",msg.payload)
 
-client.on_connect = on_connect
-client.on_message = on_message
-client.on_disconnect=on_disconnect
-client.username_pw_set(CLIENT_OPENID,CLIENT_OPENID)
-client.connect("localhost", 1883, 60)
-client.loop_forever()
+
+    def run(self):
+        self.client.connect(self.host, self.port, 60)
+        self.client.loop_forever()
+
+    def publish(self,data):
+        self.client.publish("IN/DEVICE/"+CLIENT_USER_ID+"/"+CLIENT_GROUP+"/"+CLIENT_OPENID, str(data))
+
+    def on_disconnect(self,a,b,c):
+        print("已断开连接,状态码:",c)
+
+    def on_connect(self,c, userdata, flags, rc):
+            if rc==0:
+                self.client.subscribe("OUT/DEVICE/"+self.user_id+"/"+self.group+"/"+self.open_id)
+                print("连接成功!")
+            elif rc==1:
+                print("连接失败!MQTT协议错误!")
+                self.client.disconnect()
+                exit(1)
+            elif rc==2:
+                print("连接失败!非法客户端标识!")
+                self.client.disconnect()
+                exit(1)
+            elif rc==3:
+                print("连接失败!服务器访问失败!")
+                self.client.disconnect()
+            elif rc==4:
+                print("连接失败!账户或者密码错误!")
+                self.client.disconnect()
+                exit(1)
+            elif rc==5:
+                print("连接失败!认证失败!")
+                self.client.disconnect()
+                exit(1)
+            else :
+                self.client.disconnect()
+                exit(1)
