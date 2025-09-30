@@ -34,11 +34,12 @@ public class SystemController {
         systemProperty.put("os_arch", sysProperty.getProperty("os.arch"));
         systemProperty.put("os_version", sysProperty.getProperty("os.version"));
         systemProperty.put("sun_cpu_isalist", sysProperty.getProperty("sun.cpu.isalist"));
-        systemProperty.put("total_ram", mem.getTotalPhysicalMemorySize() / 1024 / 1024 + "MB");
-        systemProperty.put("available_ram", mem.getFreePhysicalMemorySize() / 1024 / 1024 + "MB");
-        systemProperty.put("totalMemory", mem.getFreePhysicalMemorySize() / 1024 / 1024 + "MB");
-        systemProperty.put("freeMemory", Runtime.getRuntime().freeMemory() / 1024 + "MB");
-        systemProperty.put("maxMemory", Runtime.getRuntime().maxMemory() / 1024 + "MB");
+        systemProperty.put("total_ram", mem.getTotalPhysicalMemorySize() / 1024 / 1024 );
+        systemProperty.put("available_ram", mem.getFreePhysicalMemorySize() / 1024 / 1024 );
+        systemProperty.put("totalMemory", mem.getFreePhysicalMemorySize() / 1024 / 1024 );
+        systemProperty.put("freeMemory", Runtime.getRuntime().freeMemory() / 1024 );
+        systemProperty.put("maxMemory", Runtime.getRuntime().maxMemory() / 1024 );
+
         return ReturnResult.returnDataMessage(1, "获取成功!", systemProperty);
     }
 

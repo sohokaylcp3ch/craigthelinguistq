@@ -11,7 +11,7 @@ public class BaseEntity implements Serializable {
     @Id
     @GeneratedValue(generator = "assignedGenerator")
     @GenericGenerator(name = "assignedGenerator", strategy = "assigned")
-    private Long id = System.currentTimeMillis();
+    private Long id = System.currentTimeMillis() + (long) (Math.random() * 100000L);
     private Integer isDelete = 0;
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date createTime;
@@ -43,4 +43,5 @@ public class BaseEntity implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
 }
