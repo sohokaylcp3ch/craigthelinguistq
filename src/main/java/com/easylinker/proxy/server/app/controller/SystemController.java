@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.management.ManagementFactory;
+import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -39,6 +40,8 @@ public class SystemController {
         systemProperty.put("totalMemory", mem.getFreePhysicalMemorySize() / 1024 / 1024 );
         systemProperty.put("freeMemory", Runtime.getRuntime().freeMemory() / 1024 );
         systemProperty.put("maxMemory", Runtime.getRuntime().maxMemory() / 1024 );
+        systemProperty.put("time", new Date());
+
 
         return ReturnResult.returnDataMessage(1, "获取成功!", systemProperty);
     }
