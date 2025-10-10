@@ -23,5 +23,7 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
 
     List<Device> findAllByAppUserAndIsOnline(AppUser appUser, Boolean online);
 
+    List<Device> findAllByIsOnline(Boolean online);
+
 
 }

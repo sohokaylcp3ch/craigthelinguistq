@@ -46,6 +46,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().mvcMatchers(
                 "/public.html",
                 "/css/**",
+                "/avatar/**",//头像
                 "/js/**",
                 "/dest/**");//css路径放行
     }
@@ -68,12 +69,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         //配置不用过滤的路由
         http.authorizeRequests()
                 .antMatchers(
-                        "/",
-                        "/userLogin",
-                        "/user/register",
-                        "/data/exportExcel",
+                        "/",//首页
+                        "/userLogin",//登陆
+                        "/user/register",//注册
 
-                        "/user/active"
+                        "/user/active"//激活
                 )
                 .permitAll();
 

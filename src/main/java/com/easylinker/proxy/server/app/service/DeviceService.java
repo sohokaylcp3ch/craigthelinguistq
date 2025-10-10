@@ -175,7 +175,7 @@ public class DeviceService {
             JSONObject deviceJson = new JSONObject();
             deviceJson.put("id", device.getId());
             if (device.getAppUser() != null) {
-                deviceJson.put("userId", device.getAppUser().getId().intValue());
+                deviceJson.put("user", device.getAppUser().getId().intValue());
             } else {
                 deviceJson.put("user", "暂未绑定用户");
             }
@@ -205,5 +205,12 @@ public class DeviceService {
         }
 
 
+    }
+
+    /**
+     * 获取当前在线的数目
+     */
+    public List<Device> findAllOnlineDevice() {
+        return deviceRepository.findAllByIsOnline(true);
     }
 }

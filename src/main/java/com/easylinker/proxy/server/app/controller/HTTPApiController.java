@@ -85,6 +85,7 @@ public class HTTPApiController {
                 } catch (Exception e) {
                     return ReturnResult.returnTipMessage(0, "发送失败!");
                 }
+
                 return ReturnResult.returnTipMessage(1, "发送成功!");
             } else {
                 return ReturnResult.returnTipMessage(0, "设备不存在或者没有绑定!");
@@ -113,7 +114,7 @@ public class HTTPApiController {
                     deviceData.setDevice(device);
                     deviceData.setData(data.toJSONString());
                     deviceDataService.save(deviceData);
-                    return ReturnResult.returnTipMessage(0, "数据提交成功!");
+                    return ReturnResult.returnTipMessage(1, "数据提交成功!");
                 } else {
                     return ReturnResult.returnTipMessage(0, "设备没有绑定!");
                 }

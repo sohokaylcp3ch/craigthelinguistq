@@ -85,7 +85,6 @@ public class AdminController {
             device.setBarCode(Image2Base64Tool.imageToBase64String(QRCodeGenerator.string2BarCode(device.getId().toString())));
             device.setOpenId(device.getId().toString());
             Location location = new Location();
-            location.setDevice(device);
             location.setLatitude(latitude);
             location.setLongitude(longitude);
             location.setLocationDescribe(locationDescribe);
@@ -130,12 +129,13 @@ public class AdminController {
 //            deviceGroup.setComment("默认分组");
 //            deviceGroup.setGroupName(groupName);
 //            deviceGroupService.save(deviceGroup);//所有新增加的设备，分组一样,保存分组
-            Location location = new Location();
-            location.setLatitude(latitude);
-            location.setLongitude(longitude);
-            location.setLocationDescribe(locationDescribe);
-            locationService.save(location);//先保存位置
+
             for (int i = 0; i < deviceSum; i++) {
+                Location location = new Location();
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
+                location.setLocationDescribe(locationDescribe);
+                locationService.save(location);//先保存位置
                 Device device = new Device();
                 device.setDeviceGroup(null);
                 device.setLastActiveDate(new Date());
@@ -206,18 +206,19 @@ public class AdminController {
         if (userId == null || groupName == null || deviceIdArray == null) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
         }
-        if (!groupName.matches(REG_1_Z)) {
-            return ReturnResult.returnTipMessage(0, "设备组名不下6位!");
-        } else {
+//        if (!groupName.matches(REG_1_Z)) {
+//            return ReturnResult.returnTipMessage(0, "设备组名不下6位!");
+//        }
+        else {
             int total = deviceIdArray.size();
             int successCount = 0;
             AppUser appUser = appUserService.findAAppUser(userId);
             if (appUser != null) {
                 //更新ACL
                 DeviceGroup newGroup = new DeviceGroup();
-                newGroup.setGroupName(groupName);
+                newGroup.setGroupName("G" + appUser.getId());
                 newGroup.setAppUser(appUser);
-                newGroup.setComment("默认分组" + new Date());
+                newGroup.setComment(new Date().toString().replace(" ", "_"));
                 deviceGroupService.save(newGroup);
                 for (Object o : deviceIdArray) {
                     Device device = deviceService.findADevice((Long.parseLong(o.toString())));
@@ -293,5 +294,26 @@ public class AdminController {
                 deviceGroupService.getAllDeviceGroupByPage(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
 
     }
+
+    /**
+     * 系统实时数据
+     * 1 当前在线设备数目
+     * 2 用户量
+     * 3 绑定数
+     * 4 设备总数
+     * 5 离线
+     * 6 当前消息
+     *
+     * @return
+     */
+    @RequestMapping(value = "/getRealTimeData", method = RequestMethod.GET)
+    public JSONObject getRealTimeData() {
+        JSONObject data = new JSONObject();
+        data.put("totalDevice", deviceService.findAllDevice().size());
+        data.put("online", deviceService.findAllOnlineDevice());
+        data.put("userCount", appUserService.getAllUsers().size());
+        return ReturnResult.returnDataMessage(1, "查询成功!", data);
+    }
+
 
 }
