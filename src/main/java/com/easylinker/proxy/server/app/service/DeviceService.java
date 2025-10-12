@@ -177,7 +177,7 @@ public class DeviceService {
             if (device.getAppUser() != null) {
                 deviceJson.put("user", device.getAppUser().getId().intValue());
             } else {
-                deviceJson.put("user", "暂未绑定用户");
+                deviceJson.put("user", "暂未绑定");
             }
 
             DeviceGroup deviceGroup = device.getDeviceGroup();
@@ -185,9 +185,9 @@ public class DeviceService {
             if (device.getDeviceGroup() != null) {
                 groupJson.put("name", deviceGroup.getGroupName());
                 groupJson.put("comment", deviceGroup.getComment());
-                groupJson.put("id", deviceGroup.getId());
+                groupJson.put("id", deviceGroup.getId().intValue());
             } else {
-                groupJson.put("name", "暂未分组!");
+                groupJson.put("name", "暂未分组");
             }
 
 
