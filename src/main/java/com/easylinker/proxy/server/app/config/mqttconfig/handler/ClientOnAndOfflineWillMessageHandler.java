@@ -53,16 +53,23 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
                 if (username.equals(EMQ_USERNAME) || username.equals(WEBSOCKET_USERNAME)) {
                     logger.info("内部组件[" + username + "]连接成功!");
                 } else {
-                    Device device = deviceService.findADevice(Long.parseLong(username));
-                    if (device != null) {
-                        device.setOnline(true);
-                        deviceService.save(device);
-                        logger.info("设备:[" + device.getDeviceName() + "]上线");
-                        JSONObject realTimeJson = new JSONObject();
-                        realTimeJson.put("type", RealTimeType.ONLINE);
-                        realTimeJson.put("device", device.getId());
-                        mqttMessageSender.sendRealTimePureMessage(realTimeJson);
+                    try {
+                        Device device = deviceService.findADevice(Long.parseLong(username));
+                        if (device != null) {
+                            device.setOnline(true);
+                            deviceService.save(device);
+                            logger.info("设备:[" + device.getDeviceName() + "]上线");
+                            JSONObject realTimeJson = new JSONObject();
+                            realTimeJson.put("type", RealTimeType.ONLINE);
+                            realTimeJson.put("device", device.getId());
+                            mqttMessageSender.sendRealTimePureMessage(realTimeJson);
+                        }
+                    }catch (Exception e){
+                        //todo
+                        logger.error(e.getMessage());
                     }
+
+
                 }
             } catch (Exception e) {
                 logger.error("解析消息时出现了格式错误!");
