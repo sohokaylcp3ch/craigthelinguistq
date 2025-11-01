@@ -31,7 +31,7 @@ public class QRCodeGenerator {
             QRCodeWriter writer = new QRCodeWriter();
             //http://localhost/device/barCode/2423de45t46g465
             // //通过二维码的HTTP请求 就可以获取数据
-            BitMatrix matrix = writer.encode("/device/barCode/" + deviceId, BarcodeFormat.QR_CODE, HEIGHT, WIDTH);
+            BitMatrix matrix = writer.encode(deviceId, BarcodeFormat.QR_CODE, HEIGHT, WIDTH);
             MatrixToImageConfig config = new MatrixToImageConfig(ON_COLOR, BACK_COLOR);
 
             MatrixToImageWriter.writeToStream(matrix, "png", outputStream, config);
