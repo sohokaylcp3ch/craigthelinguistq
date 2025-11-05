@@ -46,7 +46,7 @@ public class UserController {
         Device device = deviceService.findADevice(deviceId);
         DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupById(groupId);
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (device != null && deviceGroup != null && deviceGroup.getAppUser().getId() == appUser.getId()) {
+        if (device != null && deviceGroup != null && deviceGroup.getAppUser().getId().longValue() == appUser.getId().longValue()) {
             if (device.getAppUser() == null) {
                 device.setAppUser(appUser);
                 device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
