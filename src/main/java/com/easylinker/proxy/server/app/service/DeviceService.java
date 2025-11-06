@@ -67,7 +67,11 @@ public class DeviceService {
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
-            deviceJson.put("location", device.getLocation().toString());
+            JSONObject locationJson = new JSONObject();
+            locationJson.put("latitude", device.getLocation().getLatitude());
+            locationJson.put("longitude", device.getLocation().getLongitude());
+            locationJson.put("describe", device.getLocation().getLocationDescribe());
+            deviceJson.put("location", locationJson);
             deviceJson.put("describe", device.getDeviceDescribe());
             data.add(deviceJson);
         }
@@ -100,7 +104,11 @@ public class DeviceService {
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             deviceJson.put("describe", device.getDeviceDescribe());
-            deviceJson.put("location", device.getLocation().toString());
+            JSONObject locationJson = new JSONObject();
+            locationJson.put("latitude", device.getLocation().getLatitude());
+            locationJson.put("longitude", device.getLocation().getLongitude());
+            locationJson.put("describe", device.getLocation().getLocationDescribe());
+            deviceJson.put("location", locationJson);
             data.add(deviceJson);
         }
         pageJson.put("data", data);
@@ -133,7 +141,15 @@ public class DeviceService {
             deviceJson.put("openId", device.getOpenId());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("describe", device.getDeviceDescribe());
-            deviceJson.put("location", device.getLocation().getLocationDescribe());
+            /**
+             * 地理位置
+             */
+
+            JSONObject locationJson = new JSONObject();
+            locationJson.put("latitude", device.getLocation().getLatitude());
+            locationJson.put("longitude", device.getLocation().getLongitude());
+            locationJson.put("describe", device.getLocation().getLocationDescribe());
+            deviceJson.put("location", locationJson);
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             data.add(deviceJson);
         }
@@ -197,7 +213,11 @@ public class DeviceService {
             deviceJson.put("openId", device.getOpenId());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("describe", device.getDeviceDescribe());
-            deviceJson.put("location", device.getLocation().getLocationDescribe());
+            JSONObject locationJson = new JSONObject();
+            locationJson.put("latitude", device.getLocation().getLatitude());
+            locationJson.put("longitude", device.getLocation().getLongitude());
+            locationJson.put("describe", device.getLocation().getLocationDescribe());
+            deviceJson.put("location", locationJson);
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             return ReturnResult.returnDataMessage(1, "查询成功!", deviceJson);
         } else {
