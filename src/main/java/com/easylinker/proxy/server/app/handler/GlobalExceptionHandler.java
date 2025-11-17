@@ -1,6 +1,10 @@
 package com.easylinker.proxy.server.app.handler;
 
 import com.alibaba.fastjson.JSONObject;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,6 +17,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 @ControllerAdvice
+
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -27,7 +32,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public JSONObject defaultErrorHandler(Exception e) {
         JSONObject resultJson = new JSONObject();
-        logger.error("出现了异常:"+e.getMessage());
+        logger.error("出现了异常:" + e.getMessage());
         logger.error("------------------------------------------------------");
         e.printStackTrace();
         logger.error("------------------------------------------------------");
@@ -55,8 +60,7 @@ public class GlobalExceptionHandler {
 
             resultJson.put("state", 0);
             resultJson.put("message", "Error code 5004!你没有权限访问该路径!");
-        }
-        else {
+        } else {
             //System.out.println("异常信息:"+e.getLocalizedMessage());
             resultJson.put("state", 0);
             resultJson.put("message", "Error code 5005!未知错误,请联系管理员!");

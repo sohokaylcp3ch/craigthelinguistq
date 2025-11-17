@@ -42,7 +42,6 @@ public class MqttConfig {
     @Autowired
     RealTimeMessageHandler realTimeMessageHandler;
 
-
     /**
      * mqtt 的工厂  用来创建mqtt连接
      *
@@ -65,7 +64,7 @@ public class MqttConfig {
      */
     @Bean("MqttClientOnOrOffLineMessageListenerInbound")
     public MessageProducerSupport getMqttClientOnOrOffLineMessageListener() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
+        EMqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
                 "MqttClientOnOrOffLineMessageListenerInbound",
                 mqttClientFactory());
         adapter.addTopic("$SYS/brokers/+/clients/+/#");//监控设备消息上下线
@@ -96,7 +95,7 @@ public class MqttConfig {
      */
     @Bean("MqttClientInMessageListenerInbound")
     public MessageProducerSupport getMqttClientInMessageListener() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
+        EMqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
                 "MqttClientInMessageListenerInbound",
                 mqttClientFactory());
         //OUT/DEVICE/DEFAULT_USER/DEFAULT_GROUP/ID  为客户端SUB的TOPIC
@@ -129,8 +128,8 @@ public class MqttConfig {
      */
 
     @Bean("ClientCmdReplyMessageHandler")
-    public MqttPahoMessageDrivenChannelAdapter getClientCmdReplyMessageHandler() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
+    public EMqttPahoMessageDrivenChannelAdapter getClientCmdReplyMessageHandler() {
+        EMqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
                 "ClientCmdReplyMessageHandler",
                 mqttClientFactory());
         //CMD/IN/所有命令回复
@@ -161,8 +160,8 @@ public class MqttConfig {
      */
 
     @Bean("RealTimeMessageHandler")
-    public MqttPahoMessageDrivenChannelAdapter getRealTimeMessageHandler() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
+    public EMqttPahoMessageDrivenChannelAdapter getRealTimeMessageHandler() {
+        EMqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
                 "RealTimeMessageHandler",
                 mqttClientFactory());
         adapter.addTopic("OUT/REAL_TIME/#");//实时消息
