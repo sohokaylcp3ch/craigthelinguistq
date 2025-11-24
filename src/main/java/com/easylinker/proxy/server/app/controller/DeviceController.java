@@ -1,5 +1,6 @@
 package com.easylinker.proxy.server.app.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
@@ -8,6 +9,7 @@ import com.easylinker.proxy.server.app.service.DeviceDataService;
 import com.easylinker.proxy.server.app.service.DeviceGroupService;
 import com.easylinker.proxy.server.app.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,7 +69,10 @@ public class DeviceController {
     public JSONObject getDeviceData(@PathVariable Long deviceId, @PathVariable int page, @PathVariable int size) {
         Device device = deviceService.findADevice(deviceId);
         if (device != null) {
-            return ReturnResult.returnDataMessage(1, "查询成功!", deviceDataService.getAllDeviceDataByDevice(device, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+            AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            JSONArray data= deviceDataService.getAllDeviceDataByDevice(device, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
+
+            return ReturnResult.returnDataMessage(1, "查询成功!",data);
 
         } else {
             return ReturnResult.returnTipMessage(0, "设备不存在!");

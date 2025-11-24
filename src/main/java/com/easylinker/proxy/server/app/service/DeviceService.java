@@ -45,7 +45,6 @@ public class DeviceService {
         return deviceRepository.findTopById(id);
     }
 
-
     public JSONObject getAllDevicesByAppUser(AppUser appUser, Pageable pageable) {
         JSONArray data = new JSONArray();
         JSONObject pageJson = new JSONObject();

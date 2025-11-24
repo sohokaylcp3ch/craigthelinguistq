@@ -193,7 +193,7 @@ public class EMqttPahoMessageDrivenChannelAdapter extends AbstractMqttMessageDri
              */
 
             //this.logger.error("Error connecting or subscribing to " + Arrays.toString(topics), var9);
-            this.logger.error("EMQ配置错误，导致EasyLinker无法连接，强检查配置！");
+            this.logger.error("EMQ配置错误，导致EasyLinker无法连接，检查配置！");
             this.client.disconnectForcibly((long) this.completionTimeout);
             throw var9;
         } finally {
