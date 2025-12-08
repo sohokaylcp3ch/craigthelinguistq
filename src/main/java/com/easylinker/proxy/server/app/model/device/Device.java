@@ -30,11 +30,15 @@ public class Device extends BaseEntity {
 
     @ManyToOne(targetEntity = DeviceGroup.class, fetch = FetchType.LAZY)
     private DeviceGroup deviceGroup;
+    private String secretKey="-.-.-";
 
+    public String getSecretKey() {
+        return secretKey;
+    }
 
-//
-//    @OneToMany(targetEntity = AudioData.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private List<AudioData> audioDataList;
+    public void setSecretKey(String scretKey) {
+        this.secretKey = scretKey;
+    }
 
     private String topic;
     @JSONField(serialize = false)

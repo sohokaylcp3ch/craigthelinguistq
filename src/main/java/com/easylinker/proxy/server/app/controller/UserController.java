@@ -4,11 +4,15 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceGroup;
+import com.easylinker.proxy.server.app.model.device.Location;
 import com.easylinker.proxy.server.app.model.user.AppUser;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
 import com.easylinker.proxy.server.app.service.AppUserService;
 import com.easylinker.proxy.server.app.service.DeviceGroupService;
 import com.easylinker.proxy.server.app.service.DeviceService;
+import com.easylinker.proxy.server.app.service.LocationService;
+import com.easylinker.proxy.server.app.utils.Image2Base64Tool;
+import com.easylinker.proxy.server.app.utils.QRCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -33,6 +38,8 @@ public class UserController {
     DeviceService deviceService;
     @Autowired
     DeviceGroupService deviceGroupService;
+    @Autowired
+    LocationService locationService;
 
     /**
      * 把单个设备绑定到用户
@@ -238,6 +245,63 @@ public class UserController {
 
         }
 
+    }
+
+
+    /**
+     * 增加一个设备
+     *
+     * @param deviceBody 包含设备信息的JSON
+     * @return
+     */
+    @RequestMapping("/createADevice")
+    public JSONObject createADevice(@RequestBody JSONObject deviceBody) {
+        String deviceName = deviceBody.getString("deviceName");
+        String deviceDescribe = deviceBody.getString("deviceDescribe");
+        String deviceNamePrefix = deviceBody.getString("deviceNamePrefix");
+        String latitude = deviceBody.getString("latitude");
+        String longitude = deviceBody.getString("longitude");
+        String locationDescribe = deviceBody.getString("locationDescribe");
+        String groupName = deviceBody.getString("groupName");
+
+
+        if (deviceDescribe == null || deviceName == null || groupName == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
+            return ReturnResult.returnTipMessage(0, "参数不全!");
+
+
+        } else if (!groupName.matches(REG_1_Z)) {
+            return ReturnResult.returnTipMessage(0, "设备组名字不下6位!");
+        } else if (!deviceNamePrefix.matches(REG_1_Z)) {
+            return ReturnResult.returnTipMessage(0, "设备名称前缀不下6位!");
+        } else {
+            AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            Device device = new Device();
+            DeviceGroup deviceGroup = new DeviceGroup();
+            deviceGroup.setComment(groupName);
+            deviceGroup.setGroupName(groupName);
+            deviceGroupService.save(deviceGroup);//保存分组
+
+            device.setDeviceGroup(deviceGroup);
+            device.setAppUser(appUser);
+            device.setLastActiveDate(new Date());
+            device.setDeviceName(deviceName);
+            device.setDeviceDescribe(deviceDescribe);
+            device.setClientId(device.getId().toString());
+            device.setSecretKey(appUser.getId() + "-" + deviceGroup.getId() + "-" + device.getId());
+            //设置ACL  默认值
+            device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
+            device.setBarCode(Image2Base64Tool.imageToBase64String(QRCodeGenerator.string2BarCode(device.getId().toString())));
+            device.setOpenId(device.getId().toString());
+            Location location = new Location();
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+            location.setLocationDescribe(locationDescribe);
+            locationService.save(location);//先保存位置
+            device.setLocation(location);
+            deviceService.save(device);
+            return ReturnResult.returnTipMessage(1, "设备创建成功!");
+        }
     }
 
 

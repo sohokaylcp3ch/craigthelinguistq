@@ -68,8 +68,12 @@ public class DeviceController {
     @RequestMapping(value = "/getDeviceData/{deviceId}/{page}/{size}", method = RequestMethod.GET)
     public JSONObject getDeviceData(@PathVariable Long deviceId, @PathVariable int page, @PathVariable int size) {
         Device device = deviceService.findADevice(deviceId);
+        if (device==null)
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+
+        if (device.getAppUser()==null)
+            return ReturnResult.returnTipMessage(0, "设备未绑定!");
         if (device != null) {
-            AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             JSONArray data= deviceDataService.getAllDeviceDataByDevice(device, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
 
             return ReturnResult.returnDataMessage(1, "查询成功!",data);
