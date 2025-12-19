@@ -65,6 +65,7 @@ public class DeviceService {
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("barCode", device.getBarCode());
+            deviceJson.put("key",device.getSecretKey());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             JSONObject locationJson = new JSONObject();
             locationJson.put("latitude", device.getLocation().getLatitude());
@@ -100,6 +101,7 @@ public class DeviceService {
             deviceJson.put("id", device.getId());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("name", device.getDeviceName());
+            deviceJson.put("key",device.getSecretKey());
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             deviceJson.put("describe", device.getDeviceDescribe());
@@ -126,6 +128,7 @@ public class DeviceService {
         pageJson.put("isLast", dataPage.isLast());
         pageJson.put("totalPages", dataPage.getTotalPages());
         pageJson.put("isFirst", dataPage.isFirst());
+
         pageJson.put("totalElements", dataPage.getTotalElements());
         for (Device device : dataPage.getContent()) {
             JSONObject deviceJson = new JSONObject();
@@ -135,6 +138,7 @@ public class DeviceService {
                 deviceJson.put("isBind", true);
             }
             deviceJson.put("id", device.getId());
+            deviceJson.put("key",device.getSecretKey());
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("openId", device.getOpenId());
@@ -205,7 +209,7 @@ public class DeviceService {
                 groupJson.put("name", "暂未分组");
             }
 
-
+            deviceJson.put("key",device.getSecretKey());
             deviceJson.put("group", groupJson);
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("barCode", device.getBarCode());

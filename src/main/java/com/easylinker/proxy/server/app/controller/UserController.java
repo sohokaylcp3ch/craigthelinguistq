@@ -262,26 +262,20 @@ public class UserController {
         String latitude = deviceBody.getString("latitude");
         String longitude = deviceBody.getString("longitude");
         String locationDescribe = deviceBody.getString("locationDescribe");
-        String groupName = deviceBody.getString("groupName");
+        Long groupId = deviceBody.getLong("groupId");
 
 
-        if (deviceDescribe == null || deviceName == null || groupName == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
+        if (deviceDescribe == null || deviceName == null || groupId == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
+
             return ReturnResult.returnTipMessage(0, "参数不全!");
-
-
-        } else if (!groupName.matches(REG_1_Z)) {
-            return ReturnResult.returnTipMessage(0, "设备组名字不下6位!");
-        } else if (!deviceNamePrefix.matches(REG_1_Z)) {
-            return ReturnResult.returnTipMessage(0, "设备名称前缀不下6位!");
+        }
+        DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupById(groupId.longValue());
+        if (deviceGroup == null) {
+            return ReturnResult.returnTipMessage(0, "分组不存在!");
         } else {
+
             AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
             Device device = new Device();
-            DeviceGroup deviceGroup = new DeviceGroup();
-            deviceGroup.setComment(groupName);
-            deviceGroup.setGroupName(groupName);
-            deviceGroupService.save(deviceGroup);//保存分组
-
             device.setDeviceGroup(deviceGroup);
             device.setAppUser(appUser);
             device.setLastActiveDate(new Date());
@@ -289,7 +283,7 @@ public class UserController {
             device.setDeviceDescribe(deviceDescribe);
             device.setClientId(device.getId().toString());
             device.setSecretKey(appUser.getId() + "-" + deviceGroup.getId() + "-" + device.getId());
-            //设置ACL  默认值
+            //设置ACL
             device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
             device.setBarCode(Image2Base64Tool.imageToBase64String(QRCodeGenerator.string2BarCode(device.getId().toString())));
             device.setOpenId(device.getId().toString());
@@ -304,5 +298,5 @@ public class UserController {
         }
     }
 
-
 }
+

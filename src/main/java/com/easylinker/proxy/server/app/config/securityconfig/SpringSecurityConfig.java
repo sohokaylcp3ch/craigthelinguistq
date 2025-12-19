@@ -84,6 +84,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().logout().logoutSuccessHandler(logoutSuccessHandler)
                 .logoutUrl("/logOut")
                 .and().rememberMe().alwaysRemember(true)
+
                 .and().exceptionHandling()
                 .authenticationEntryPoint(anonymousHandler)
                 .and().csrf().disable();
