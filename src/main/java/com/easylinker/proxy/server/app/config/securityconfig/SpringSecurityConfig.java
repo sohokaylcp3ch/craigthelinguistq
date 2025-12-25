@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
+
 /**
  * Created by wwhai on 2018/3/14.
  */
@@ -84,12 +85,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().logout().logoutSuccessHandler(logoutSuccessHandler)
                 .logoutUrl("/logOut")
                 .and().rememberMe().alwaysRemember(true)
-
+                // 配置Cookie过期时间
+                .tokenValiditySeconds(2952000)
+                // 配置UserDetailsService
                 .and().exceptionHandling()
                 .authenticationEntryPoint(anonymousHandler)
                 .and().csrf().disable();
 
     }
+
 
     @Bean
     public CustomUsernamePasswordFilter getCustomUsernamePasswordFilter() throws Exception {
