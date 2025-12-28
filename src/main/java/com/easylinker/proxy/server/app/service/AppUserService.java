@@ -65,7 +65,7 @@ public class AppUserService {
     public JSONObject getAllUsersByPage(Pageable pageable) {
         JSONArray data = new JSONArray();
         Page<AppUser> dataPage = appUserRepository.findAll(pageable);
-        JSONObject pageJson=new JSONObject();
+        JSONObject pageJson = new JSONObject();
         pageJson.put("page", dataPage.getNumber());
         pageJson.put("totalElements", dataPage.getTotalElements());
         pageJson.put("totalPages", dataPage.getTotalPages());
@@ -81,11 +81,16 @@ public class AppUserService {
             jsonObject.put("phone", appUser.getPhone());
             data.add(jsonObject);
         }
-        pageJson.put("data",data);
+        pageJson.put("data", data);
         return pageJson;
     }
 
 
+    /**
+     * 通过ID查找用户
+     */
 
-
+    public AppUser getAUserById(Long id) {
+        return appUserRepository.findTopById(id);
+    }
 }

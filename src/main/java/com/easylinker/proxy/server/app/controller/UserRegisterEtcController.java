@@ -86,27 +86,26 @@ public class UserRegisterEtcController {
                 appUser.setPassword(MD5Generator.EncodingMD5(password));
                 appUser.setEmail(email);
                 appUser.setPhone(phone);
-                //添加权限  默认新用户全部是 ROLE_USER 普通用户
-                appUserService.save(appUser);
+                try {
 
-                UserRole userRole = new UserRole();
-                userRole.setAppUser(appUser);
-                userRole.setRole("ROLE_USER");
-                userRoleService.save(userRole);
-                return ReturnResult.returnTipMessage(1, "注册成功!");
-//                try {
-//                    //emailSender.sendActiveUserAccountMail(appUser);
-//                    return ReturnResult.returnTipMessage(1, "注册成功!");
-//                } catch (Exception e) {
-//                    if (e instanceof SMTPAddressFailedException) {
-//                        return ReturnResult.returnTipMessage(0, "邮箱无效！请使用正确的邮箱!");
-//                    } else {
-//                        e.printStackTrace();
-//                        return ReturnResult.returnTipMessage(0, "邮箱无效！");
-//                    }
-//
-//
-//                }
+                    emailSender.sendHtmlMail(appUser);//发送激活邮件
+                    //添加权限  默认新用户全部是 ROLE_USER 普通用户
+                    appUserService.save(appUser);
+                    UserRole userRole = new UserRole();
+                    userRole.setAppUser(appUser);
+                    userRole.setRole("ROLE_USER");
+                    userRoleService.save(userRole);
+                    return ReturnResult.returnTipMessage(1, "注册成功!");
+                } catch (Exception e) {
+                    if (e instanceof SMTPAddressFailedException) {
+                        return ReturnResult.returnTipMessage(0, "邮箱无效！请使用正确的邮箱!");
+                    } else {
+                        e.printStackTrace();
+                        return ReturnResult.returnTipMessage(0, "服务器邮件发送失败,请联系管理员！");
+                    }
+
+
+                }
 
             }
         }
@@ -192,7 +191,7 @@ public class UserRegisterEtcController {
             return ReturnResult.returnTipMessage(0, "用户不存在!");
         } else {
             try {
-                emailSender.sendActiveUserAccountMail(appUser);
+                emailSender.sendHtmlMail(appUser);
                 return ReturnResult.returnTipMessage(1, "邮件发送成功!");
             } catch (Exception e) {
                 return ReturnResult.returnTipMessage(0, "邮件发送失败!");

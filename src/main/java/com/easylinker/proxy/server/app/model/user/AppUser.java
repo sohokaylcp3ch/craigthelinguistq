@@ -29,7 +29,7 @@ public class AppUser extends BaseEntity implements UserDetails {
     private boolean isAccountNonExpired = true;
     private boolean isAccountNonLocked = true;
     private boolean isCredentialsNonExpired = true;
-    private boolean isEnabled = true;
+    private boolean isEnabled = false;
 
     @NotFound(action= NotFoundAction.IGNORE)
     @OneToMany(targetEntity = DeviceGroup.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
