@@ -143,6 +143,7 @@ public class AdminController {
                 device.setDeviceDescribe("Product_" + i);
                 device.setClientId(device.getId().toString());
                 //设置ACL  默认值
+
                 device.setTopic("IN/DEVICE/DEFAULT_USER/" + "DEFAULT_GROUP" + "/" + device.getId());
                 device.setBarCode(Image2Base64Tool.imageToBase64String(QRCodeGenerator.string2BarCode(device.getId().toString())));
                 device.setOpenId(device.getId().toString());
@@ -226,6 +227,7 @@ public class AdminController {
                         successCount += 1;
                         device.setAppUser(appUser);
                         device.setDeviceGroup(newGroup);
+                        device.setSecretKey(appUser.getId() + "-" + device.getDeviceGroup().getId() + "-" + device.getId());
                         device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + newGroup.getId() + "/" + device.getId());
                         deviceService.save(device);
                     }
