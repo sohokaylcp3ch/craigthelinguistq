@@ -18,7 +18,7 @@ public class RealTimeMessageHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message<?> message) throws MessagingException {
-        logger.info("实时消息:" + message.getPayload());
+        logger.info("实时消息:" + message);
 
     }
 }

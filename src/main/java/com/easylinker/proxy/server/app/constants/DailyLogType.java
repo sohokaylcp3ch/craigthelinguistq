@@ -11,5 +11,6 @@ public enum DailyLogType {
     USER_LOG,
     SYSTEM_LOG,
     ERROE_LOG,
-    NORMAL_LOG
+    NORMAL_LOG,
+    ON_AND_OFF
 }

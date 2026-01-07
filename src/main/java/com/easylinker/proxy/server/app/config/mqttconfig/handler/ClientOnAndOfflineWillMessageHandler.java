@@ -3,8 +3,13 @@ package com.easylinker.proxy.server.app.config.mqttconfig.handler;
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.bean.RealTimeMessage;
 import com.easylinker.proxy.server.app.config.mqttconfig.MqttMessageSender;
+import com.easylinker.proxy.server.app.constants.DailyLogType;
 import com.easylinker.proxy.server.app.constants.mqtt.RealTimeType;
+import com.easylinker.proxy.server.app.model.daily.DailyLog;
+import com.easylinker.proxy.server.app.model.daily.DeviceOnAndOffLineLog;
 import com.easylinker.proxy.server.app.model.device.Device;
+import com.easylinker.proxy.server.app.service.DailyLogService;
+import com.easylinker.proxy.server.app.service.DeviceOnAndOffLineLogService;
 import com.easylinker.proxy.server.app.service.DeviceService;
 import com.easylinker.proxy.server.app.utils.HttpTool;
 import org.slf4j.Logger;
@@ -33,12 +38,16 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
     @Autowired
     MqttMessageSender mqttMessageSender;
     @Autowired
+    DailyLogService dailyLogService;
+    @Autowired
     HttpTool httpTool;
     @Value("${emq.api.host}")
     String apiHost;
     //emq.websocket.username
     @Value("${emq.websocket.username}")
     String WEBSOCKET_USERNAME;
+    @Autowired
+    DeviceOnAndOffLineLogService deviceOnAndOffLineLogService;
 
     @Override
     public void handleMessage(Message<?> message) throws MessagingException {
@@ -63,8 +72,15 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
                             realTimeJson.put("type", RealTimeType.ONLINE);
                             realTimeJson.put("device", device.getId());
                             mqttMessageSender.sendRealTimePureMessage(realTimeJson);
+                            //生成日志
+                            DeviceOnAndOffLineLog deviceOnAndOffLineLog = new DeviceOnAndOffLineLog();
+                            deviceOnAndOffLineLog.setDate(new Date());
+                            deviceOnAndOffLineLog.setDevice(device);
+                            deviceOnAndOffLineLog.setEvent("CONNECT");
+                            deviceOnAndOffLineLogService.save(deviceOnAndOffLineLog);
+
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         //todo
                         logger.error(e.getMessage());
                     }
@@ -93,6 +109,12 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
                         realTimeJson.put("type", RealTimeType.OFFLINE);
                         realTimeJson.put("device", device.getId());
                         mqttMessageSender.sendRealTimePureMessage(realTimeJson);
+                        //生成日志
+                        DeviceOnAndOffLineLog deviceOnAndOffLineLog = new DeviceOnAndOffLineLog();
+                        deviceOnAndOffLineLog.setDate(new Date());
+                        deviceOnAndOffLineLog.setDevice(device);
+                        deviceOnAndOffLineLog.setEvent("DISCONNECT");
+                        deviceOnAndOffLineLogService.save(deviceOnAndOffLineLog);
 
                     }
                 }

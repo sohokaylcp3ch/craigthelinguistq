@@ -13,6 +13,7 @@ import java.util.Date;
  */
 @Entity
 public class DailyLog extends BaseEntity {
+    private Long whosId;
     private String event;
     private String who;
     private String operate;
@@ -26,6 +27,15 @@ public class DailyLog extends BaseEntity {
 
     public void setDailyLogType(DailyLogType dailyLogType) {
         this.dailyLogType = dailyLogType;
+    }
+
+
+    public Long getWhosId() {
+        return whosId;
+    }
+
+    public void setWhosId(Long whosId) {
+        this.whosId = whosId;
     }
 
     public Date getDate() {

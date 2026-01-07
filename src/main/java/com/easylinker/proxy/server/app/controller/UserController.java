@@ -298,5 +298,23 @@ public class UserController {
         }
     }
 
+    /**
+     * 删除设备
+     *
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    public JSONObject delete(@PathVariable("id") Long id) {
+        Device device = deviceService.findADevice(id);
+        if (device != null) {
+            deviceService.delete(device);
+            return ReturnResult.returnTipMessage(1, "设备删除成功!");
+
+        } else {
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+        }
+    }
+
 }
 

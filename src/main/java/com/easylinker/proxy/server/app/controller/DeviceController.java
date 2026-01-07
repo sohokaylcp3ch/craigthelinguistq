@@ -7,7 +7,9 @@ import com.easylinker.proxy.server.app.constants.result.ReturnResult;
 import com.easylinker.proxy.server.app.model.user.AppUser;
 import com.easylinker.proxy.server.app.service.DeviceDataService;
 import com.easylinker.proxy.server.app.service.DeviceGroupService;
+import com.easylinker.proxy.server.app.service.DeviceOnAndOffLineLogService;
 import com.easylinker.proxy.server.app.service.DeviceService;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +33,9 @@ public class DeviceController {
     @Autowired
     DeviceGroupService deviceGroupService;
 
+    @Autowired
+    DeviceOnAndOffLineLogService deviceOnAndOffLineLogService;
+
     /**
      * 获取单个设备的细节
      *
@@ -43,16 +48,8 @@ public class DeviceController {
 
         Device device = deviceService.findADevice(deviceId);
         if (device != null && device.getAppUser().getId().longValue() == appUser.getId().longValue()) {
-            JSONObject deviceJson = new JSONObject();
-            deviceJson.put("id", device.getId());
-            deviceJson.put("barCode", device.getBarCode());
-            deviceJson.put("isOnline", device.isOnline());
-            deviceJson.put("openId", device.getOpenId());
-            deviceJson.put("name", device.getDeviceName());
-            deviceJson.put("describe", device.getDeviceDescribe());
-            deviceJson.put("location", device.getLocation().getLocationDescribe());
-            deviceJson.put("lastActiveDate", device.getLastActiveDate());
-            return ReturnResult.returnDataMessage(1, "查询成功!", deviceJson);
+
+            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getDeviceDetail(deviceId));
         } else {
             return ReturnResult.returnTipMessage(0, "设备不存在!");
         }
@@ -68,15 +65,15 @@ public class DeviceController {
     @RequestMapping(value = "/getDeviceData/{deviceId}/{page}/{size}", method = RequestMethod.GET)
     public JSONObject getDeviceData(@PathVariable Long deviceId, @PathVariable int page, @PathVariable int size) {
         Device device = deviceService.findADevice(deviceId);
-        if (device==null)
+        if (device == null)
             return ReturnResult.returnTipMessage(0, "设备不存在!");
 
-        if (device.getAppUser()==null)
+        if (device.getAppUser() == null)
             return ReturnResult.returnTipMessage(0, "设备未绑定!");
         if (device != null) {
-            JSONArray data= deviceDataService.getAllDeviceDataByDevice(device, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
+            JSONArray data = deviceDataService.getAllDeviceDataByDevice(device, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
 
-            return ReturnResult.returnDataMessage(1, "查询成功!",data);
+            return ReturnResult.returnDataMessage(1, "查询成功!", data);
 
         } else {
             return ReturnResult.returnTipMessage(0, "设备不存在!");
@@ -84,13 +81,40 @@ public class DeviceController {
 
     }
 
-//    /**
-//     * 分页获取分组
-//     */
-//    @RequestMapping(value = "/getAllDeviceGroupByPage/{page}/{size}", method = RequestMethod.GET)
-//    public JSONObject getAllDeviceGroupByPage(@PathVariable int page, @PathVariable int size) {
-//        return ReturnResult.returnDataMessage(1, "获取成功!", deviceGroupService.getAllDeviceGroupByPage(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
-//
-//    }
+
+    /**
+     * 分页获取设备日志
+     */
+    @RequestMapping(value = "/getAllLogByPage/{deviceId}/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllLogByPage(@PathVariable Long deviceId, @PathVariable int page, @PathVariable int size) {
+        Device device = deviceService.findADevice(deviceId);
+        if (device == null)
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+
+        if (device.getAppUser() == null)
+            return ReturnResult.returnTipMessage(0, "设备未绑定!");
+        if (device != null) {
+
+            return ReturnResult.returnDataMessage(1, "查询成功!",
+                    deviceOnAndOffLineLogService.getAllLogByPage(
+                            device, PageRequest.of(page, size,
+                                    Sort.by(Sort.Direction.DESC,
+                                            "id"))));
+
+        } else {
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+        }
+    }
+
+    /**
+     * 分页获取所有设备日志
+
+     */
+    @RequestMapping(value = "/getAllLog/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllLog(@PathVariable int page, @PathVariable int size) {
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceOnAndOffLineLogService.getAllLog(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+
+
+    }
 
 }

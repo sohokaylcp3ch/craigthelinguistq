@@ -80,18 +80,29 @@ public class DeviceGroupService {
      * @param pageable
      * @return
      */
-    public JSONArray getAllDeviceGroupByPage(AppUser appUser, Pageable pageable) {
+    public JSONObject getAllDeviceGroupByPage(AppUser appUser, Pageable pageable) {
+        JSONObject pageJson = new JSONObject();
         JSONArray data = new JSONArray();
-        Page<DeviceGroup> page = deviceGroupRepository.findAllByAppUser(appUser, pageable);
-        for (DeviceGroup group : page.getContent()) {
-            JSONObject dataJson = new JSONObject();
-            dataJson.put("name", group.getGroupName());
-            dataJson.put("user", group.getAppUser().getId());
-            dataJson.put("comment", group.getComment());
-            dataJson.put("id", group.getId());
-            data.add(dataJson);
+        Page<DeviceGroup> dataPage = deviceGroupRepository.findAllByAppUser(appUser, pageable);
+        for (DeviceGroup group : dataPage.getContent()) {
+            JSONObject groupJson = new JSONObject();
+            groupJson.put("name", group.getGroupName());
+            groupJson.put("user", group.getAppUser().getId());
+            groupJson.put("comment", group.getComment());
+            groupJson.put("id", group.getId());
+            groupJson.put("create_time", group.getCreateTime());
+
+            data.add(groupJson);
         }
-        return data;
+        pageJson.put("page", dataPage.getNumber());
+        pageJson.put("totalElements", dataPage.getTotalElements());
+        pageJson.put("totalPages", dataPage.getTotalPages());
+        pageJson.put("size", dataPage.getSize());
+        pageJson.put("isLast", dataPage.isLast());
+        pageJson.put("data", data);
+        pageJson.put("isFirst", dataPage.isFirst());
+        return pageJson;
+
     }
 
     /**

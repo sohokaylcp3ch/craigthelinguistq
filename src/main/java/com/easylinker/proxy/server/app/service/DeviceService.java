@@ -65,7 +65,7 @@ public class DeviceService {
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("barCode", device.getBarCode());
-            deviceJson.put("key",device.getSecretKey());
+            deviceJson.put("key", device.getSecretKey());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             JSONObject locationJson = new JSONObject();
             locationJson.put("latitude", device.getLocation().getLatitude());
@@ -101,7 +101,7 @@ public class DeviceService {
             deviceJson.put("id", device.getId());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("name", device.getDeviceName());
-            deviceJson.put("key",device.getSecretKey());
+            deviceJson.put("key", device.getSecretKey());
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             deviceJson.put("describe", device.getDeviceDescribe());
@@ -138,7 +138,7 @@ public class DeviceService {
                 deviceJson.put("isBind", true);
             }
             deviceJson.put("id", device.getId());
-            deviceJson.put("key",device.getSecretKey());
+            deviceJson.put("key", device.getSecretKey());
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("openId", device.getOpenId());
@@ -209,7 +209,7 @@ public class DeviceService {
                 groupJson.put("name", "暂未分组");
             }
 
-            deviceJson.put("key",device.getSecretKey());
+            deviceJson.put("key", device.getSecretKey());
             deviceJson.put("group", groupJson);
             deviceJson.put("isOnline", device.isOnline());
             deviceJson.put("barCode", device.getBarCode());
@@ -222,9 +222,9 @@ public class DeviceService {
             locationJson.put("describe", device.getLocation().getLocationDescribe());
             deviceJson.put("location", locationJson);
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
-            return ReturnResult.returnDataMessage(1, "查询成功!", deviceJson);
+            return deviceJson;
         } else {
-            return ReturnResult.returnTipMessage(0, "设备不存在!");
+            return null;
         }
 
 
