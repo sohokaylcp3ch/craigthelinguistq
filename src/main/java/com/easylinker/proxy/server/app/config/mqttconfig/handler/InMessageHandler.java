@@ -41,8 +41,6 @@ public class InMessageHandler implements MessageHandler {
     //mqtt_topic=IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/1521508320898
     //这里必须这么写，以内ACL控制了Topic
     public void handleMessage(Message<?> message) throws MessagingException {
-
-
         String topic = message.getHeaders().get("mqtt_topic").toString();
         try {
             if (topic.startsWith("IN/DEVICE/")) {

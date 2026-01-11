@@ -28,7 +28,7 @@ public class ClientCmdReplyMessageHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message<?> message) throws MessagingException {
-        System.out.println("收到客户端回复命令:" + message.getHeaders().get("mqtt_topic", String.class));
+        System.out.println("收到客户端回复命令:" + message.getPayload());
         //消息转发
         try {
 
@@ -39,7 +39,6 @@ public class ClientCmdReplyMessageHandler implements MessageHandler {
             messageJson.put("qos", 1);
             messageJson.put("client_id", "SERVER_PROXY");
             httpTool.postWithAuthorization(apiHost + "mqtt/publish", messageJson);
-            // mqttMessageSender.sendRealTimePureMessage(JSONObject.parseObject(message.getPayload().toString()));
 
         } catch (Exception e) {
             e.printStackTrace();

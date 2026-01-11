@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
 import com.easylinker.proxy.server.app.model.device.DeviceData;
+import com.easylinker.proxy.server.app.model.user.AppUser;
 import com.easylinker.proxy.server.app.service.AppUserService;
 import com.easylinker.proxy.server.app.service.DeviceDataService;
 import com.easylinker.proxy.server.app.service.DeviceGroupService;
@@ -12,10 +13,8 @@ import com.easylinker.proxy.server.app.utils.HttpTool;
 import org.apache.poi.util.Removal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -70,9 +69,9 @@ public class HTTPApiController {
         } else {
             Device device = deviceService.findADevice(deviceId);
             if (device != null && device.getAppUser() != null) {
-                cmd.put("topic", device.getTopic().replace("IN","OUT"));
+                cmd.put("topic", device.getTopic().replace("IN", "OUT"));
                 try {
-                    cmd.put("payload", payload.toJSONString());//这里许哟啊注意：payload必须是String类型的
+                    cmd.put("payload", payload.toJSONString());//这里注意：payload必须是String类型的
                 } catch (Exception e) {
                     return ReturnResult.returnTipMessage(0, "消息格式必须是JSON!");
 
@@ -81,6 +80,7 @@ public class HTTPApiController {
                 cmd.put("retain", false);
                 cmd.put("client_id", "SERVER_PROXY");
                 try {
+                    System.out.println(cmd);
                     httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd);
                 } catch (Exception e) {
                     return ReturnResult.returnTipMessage(0, "发送失败!");
@@ -94,9 +94,37 @@ public class HTTPApiController {
         }
     }
 
+
+    /**
+     * 广播
+     */
+    @RequestMapping(value = "/sendCmdToGroup/{groupId}", method = RequestMethod.POST)
+    public JSONObject sendCmdToGroup(@RequestBody JSONObject body, @PathVariable Long groupId) {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        JSONObject cmd = new JSONObject();
+        JSONObject payload = body.getJSONObject("payload");
+        cmd.put("topic"," OUT/DEVICE/"+ appUser.getId() + "/" + groupId);
+        try {
+            cmd.put("payload", payload.toJSONString());//这里注意：payload必须是String类型的
+        } catch (Exception e) {
+            return ReturnResult.returnTipMessage(0, "消息格式必须是JSON!");
+        }
+        cmd.put("qos", 1);
+        cmd.put("retain", false);
+        cmd.put("client_id", "SERVER_PROXY");
+        try {
+            System.out.println(cmd);
+            httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd);
+        } catch (Exception e) {
+            return ReturnResult.returnTipMessage(0, "发送失败!");
+        }
+        return ReturnResult.returnTipMessage(1, "发送成功!");
+
+    }
+
+
     /**
      * 设备端通过HTTP POST数据进来
-     *
      *
      * @return
      */
