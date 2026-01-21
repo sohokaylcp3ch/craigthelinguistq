@@ -78,7 +78,7 @@ public class HTTPApiController {
                 }
                 cmd.put("qos", 1);
                 cmd.put("retain", false);
-                cmd.put("client_id", "SERVER_PROXY");
+                cmd.put("client_id", "easylinker_server");
                 try {
                     System.out.println(cmd);
                     httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd);
@@ -103,7 +103,7 @@ public class HTTPApiController {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         JSONObject cmd = new JSONObject();
         JSONObject payload = body.getJSONObject("payload");
-        cmd.put("topic"," OUT/DEVICE/"+ appUser.getId() + "/" + groupId);
+        cmd.put("topic", "OUT/DEVICE/" + appUser.getId() + "/" + groupId);
         try {
             cmd.put("payload", payload.toJSONString());//这里注意：payload必须是String类型的
         } catch (Exception e) {
@@ -111,10 +111,10 @@ public class HTTPApiController {
         }
         cmd.put("qos", 1);
         cmd.put("retain", false);
-        cmd.put("client_id", "SERVER_PROXY");
+        cmd.put("client_id", "easylinker_server");
         try {
-            System.out.println(cmd);
-            httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd);
+            System.out.println("广播消息:" + httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd).toJSONString() + cmd);
+
         } catch (Exception e) {
             return ReturnResult.returnTipMessage(0, "发送失败!");
         }
