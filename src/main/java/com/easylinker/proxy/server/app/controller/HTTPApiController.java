@@ -98,11 +98,12 @@ public class HTTPApiController {
     /**
      * 广播
      */
-    @RequestMapping(value = "/sendCmdToGroup/{groupId}", method = RequestMethod.POST)
-    public JSONObject sendCmdToGroup(@RequestBody JSONObject body, @PathVariable Long groupId) {
+    @RequestMapping(value = "/sendCmdToGroup", method = RequestMethod.POST)
+    public JSONObject sendCmdToGroup(@RequestBody JSONObject body) {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         JSONObject cmd = new JSONObject();
         JSONObject payload = body.getJSONObject("payload");
+        Long groupId = body.getLongValue("groupId");
         cmd.put("topic", "OUT/DEVICE/" + appUser.getId() + "/" + groupId);
         try {
             cmd.put("payload", payload.toJSONString());//这里注意：payload必须是String类型的
