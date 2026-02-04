@@ -114,7 +114,8 @@ public class HTTPApiController {
         cmd.put("retain", false);
         cmd.put("client_id", "easylinker_server");
         try {
-            System.out.println("广播消息:" + httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd).toJSONString() + cmd);
+            httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd);
+            //System.out.println("广播消息:" + httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd).toJSONString() + cmd);
 
         } catch (Exception e) {
             return ReturnResult.returnTipMessage(0, "发送失败!");
