@@ -2,6 +2,8 @@ package com.easylinker.proxy.server.app.interfaces;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.web.servlet.filter.ApplicationContextHeaderFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -14,25 +16,30 @@ import java.util.List;
 
 /**
  * 插件安装器
+ * 注意：插件本质上是一个SpringMVC的拦截器
  */
 @Component
 public class PluginInstaller extends ApplicationContextHeaderFilter implements WebMvcConfigurer {
-
+    private Log logger = LogFactory.getLog(PluginInstaller.class);
 
     public PluginInstaller(org.springframework.context.ApplicationContext context) {
         super(context);
-
-
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         for (InterceptorPlugin interceptorPlugin : LoadPlugin()) {
-
-
+            registry.addInterceptor(interceptorPlugin);
+            logger.info(String.format("插件[%s]加载成功", interceptorPlugin.getName()));
         }
 
     }
+
+    /**
+     * 解析配置文件
+     *
+     * @return
+     */
 
     public List<InterceptorPlugin> LoadPlugin() {
         List<InterceptorPlugin> interceptorPluginList = new ArrayList<>();
@@ -47,19 +54,24 @@ public class PluginInstaller extends ApplicationContextHeaderFilter implements W
             bufferedReader.close();
             JSONObject pluginConfigJson = JSONObject.parseObject(pluginConfigJsonStringBuffer.toString());
             JSONArray pluginsJsonArray = pluginConfigJson.getJSONArray("plugins");
-            for (Object plugin : pluginsJsonArray) {
-                Class<InterceptorPlugin> interceptorPlugin = (Class<InterceptorPlugin>) Class.forName(((JSONObject) plugin).getString("package"));
+            for (int i = 0; i < pluginsJsonArray.size(); i++) {
 
-                System.out.println(interceptorPlugin.getName());
+                Class<InterceptorPlugin> demoPluginClass = (Class<InterceptorPlugin>) Class.forName(((JSONObject) pluginsJsonArray.get(i)).getString("package"));
+                InterceptorPlugin interceptorPlugin = demoPluginClass.newInstance();
+                interceptorPlugin.setDesc(((JSONObject) pluginsJsonArray.get(i)).getString("desc"));
+                interceptorPlugin.setVersion(((JSONObject) pluginsJsonArray.get(i)).getString("version"));
+                interceptorPlugin.setPluginPackage(((JSONObject) pluginsJsonArray.get(i)).getString("package"));
+                interceptorPlugin.setAuthor(((JSONObject) pluginsJsonArray.get(i)).getString("author"));
+                interceptorPlugin.setName(((JSONObject) pluginsJsonArray.get(i)).getString("name"));
+                interceptorPluginList.add(interceptorPlugin);
             }
 
-
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            logger.error("加载插件的时候出错:"+e.getMessage());
         }
-        System.out.println("插件加载数目:" + interceptorPluginList.size());
-
-
         return interceptorPluginList;
     }
+
+
 }

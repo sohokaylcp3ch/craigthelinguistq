@@ -13,7 +13,7 @@
       "version": "1.0",
       "author": "wwhai",
       "desc": "A test Plugin",
-      "package": "com.easylinker.proxy.server.app.interfaces.DemoPlugin"
+      "package": "com.easylinker.proxy.server.app.interfaces.TestPlugin"
     }
   ]
 }

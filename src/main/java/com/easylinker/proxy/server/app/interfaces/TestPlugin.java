@@ -5,15 +5,14 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class DemoPlugin extends InterceptorPlugin {
-    DemoPlugin() {
-        System.out.println("我是:" + this.getClass().getName() + "插件");
+public class TestPlugin extends InterceptorPlugin {
+    TestPlugin(){
+        System.out.println("我是:"+this.getClass().getName()+"插件");
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        System.out.println(this.getClass().getName() + "插件开始作用");
-
+        System.out.println(this.getClass().getName()+"插件开始作用");
         return true;
     }
 
