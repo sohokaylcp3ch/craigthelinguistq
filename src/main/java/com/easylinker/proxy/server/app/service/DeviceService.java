@@ -236,4 +236,13 @@ public class DeviceService {
     public List<Device> findAllOnlineDevice() {
         return deviceRepository.findAllByIsOnline(true);
     }
+
+    /**
+     * 获取所有的设备的数据库ID
+     *
+     * @return
+     */
+    public List<Long> getAllId() {
+        return deviceRepository.findAllId();
+    }
 }

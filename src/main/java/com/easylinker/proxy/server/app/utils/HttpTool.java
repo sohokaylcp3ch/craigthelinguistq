@@ -2,15 +2,16 @@ package com.easylinker.proxy.server.app.utils;
 
 
 import com.alibaba.fastjson.JSONObject;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Base64;
 import java.util.Date;
 
@@ -29,6 +30,10 @@ public class HttpTool {
     String username;
     @Value("${emq.api.password}")
     String password;
+    @Value("${emq.node.name}")
+    String emqNodeName;
+    @Value("${emq.api.host}")
+    String apiHost;
 
     /**
      * 发送http post请求
@@ -51,49 +56,13 @@ public class HttpTool {
 
     }
 
-    /**
-     * Connection →close
-     * Content-Length →121
-     * Content-Type →application/json; charset=utf-8
-     * DPOOL_HEADER →tyr105
-     * DPOOL_LB7_HEADER →skuld144
-     * Date →Sat, 21 Apr 2018 14:34:08 GMT
-     * Server →Sina
-     */
 
-    public String get(String url) throws Exception {
-        final String[] result = {""};
-
-        Request request = new Request.Builder()
-                .addHeader("Connection","close")
-                .addHeader("Content-Length","121")
-                .addHeader("Content-Type","application/json; charset=utf-8")
-                .addHeader("DPOOL_HEADER","tyr105")
-                .addHeader("DPOOL_LB7_HEADER","skuld144")
-                .addHeader("Date",new Date().toString())
-                .addHeader("Server","Sina")
-                .url(url)
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.basicAuthorization(username, password)
+                .setConnectTimeout(1000)
+                .setReadTimeout(1000)
                 .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                result[0] = "{}";
-
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                System.out.println(response.body().string());
-
-                result[0] = response.body().string();
-            }
-        });
-        return result[0];
-
     }
-
-    public static void main(String[] args) throws Exception {
-        System.out.println(new HttpTool().get("http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=211.162.236.68"));
-    }
-
 }
+

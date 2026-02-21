@@ -28,7 +28,7 @@ public class ClientCmdReplyMessageHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message<?> message) throws MessagingException {
-        System.out.println("收到客户端回复命令:" + message.getPayload());
+        //System.out.println("收到客户端回复命令:" + message.getPayload());
         //消息转发
         try {
 

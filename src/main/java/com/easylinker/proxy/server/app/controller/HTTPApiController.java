@@ -1,8 +1,8 @@
 package com.easylinker.proxy.server.app.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
+import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceData;
 import com.easylinker.proxy.server.app.model.user.AppUser;
 import com.easylinker.proxy.server.app.service.AppUserService;
@@ -10,11 +10,13 @@ import com.easylinker.proxy.server.app.service.DeviceDataService;
 import com.easylinker.proxy.server.app.service.DeviceGroupService;
 import com.easylinker.proxy.server.app.service.DeviceService;
 import com.easylinker.proxy.server.app.utils.HttpTool;
-import org.apache.poi.util.Removal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -26,6 +28,8 @@ public class HTTPApiController {
 
     @Value("${emq.api.host}")
     String apiHost;
+    @Value("${emq.node.name}")
+    String emqNodeName;
     /**
      * 通过HTTP接口发送数据
      * {
@@ -39,8 +43,7 @@ public class HTTPApiController {
      *
      * @return
      */
-    @Autowired
-    RestTemplate restTemplate;
+
     @Autowired
     DeviceService deviceService;
     @Autowired
@@ -51,6 +54,9 @@ public class HTTPApiController {
     HttpTool httpTool;
     @Autowired
     DeviceDataService deviceDataService;
+
+    @Autowired
+    RestTemplate restTemplate;
 
     /**
      * 注意：默认只接受JSON格式的CMD 其他格式直接返回结果
@@ -153,6 +159,26 @@ public class HTTPApiController {
             } else {
                 return ReturnResult.returnTipMessage(0, "设备不存在!");
             }
+        }
+    }
+
+    /**
+     * 获取当前EMQ的一些数据
+     *
+     * @return
+     */
+    @RequestMapping(value = "/getEmqInfo")
+    public JSONObject getEmqInfo() {
+        //api/v2/monitoring/nodes/emq@127.0.0.1
+        JSONObject emqInfoJson = null;
+        try {
+            emqInfoJson = restTemplate.getForObject(apiHost + "monitoring/nodes/" + emqNodeName, JSONObject.class);
+            return ReturnResult.returnDataMessage(1, "", emqInfoJson.getJSONObject("result"));
+        } catch (Exception e) {
+            //System.out.println(e.getMessage());
+            JSONObject result = new JSONObject();
+            result.put("node_status", "STOP");
+            return ReturnResult.returnDataMessage(0, "EMQ服务器启动失败!", result);
         }
     }
 }

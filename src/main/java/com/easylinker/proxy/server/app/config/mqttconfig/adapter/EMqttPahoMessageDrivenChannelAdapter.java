@@ -1,6 +1,12 @@
 package com.easylinker.proxy.server.app.config.mqttconfig.adapter;
 
+import com.alibaba.fastjson.JSONObject;
+import com.easylinker.proxy.server.app.model.EMQInfo;
+import com.easylinker.proxy.server.app.service.EMQInfoService;
+import com.easylinker.proxy.server.app.utils.HttpTool;
 import org.eclipse.paho.client.mqttv3.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.integration.mqtt.core.ConsumerStopAction;
@@ -11,6 +17,7 @@ import org.springframework.integration.mqtt.event.MqttSubscribedEvent;
 import org.springframework.integration.mqtt.inbound.AbstractMqttMessageDrivenChannelAdapter;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.Arrays;
@@ -32,6 +39,14 @@ public class EMqttPahoMessageDrivenChannelAdapter extends AbstractMqttMessageDri
     private volatile boolean cleanSession;
     private volatile ConsumerStopAction consumerStopAction;
     private ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    EMQInfoService emqInfoService;
+    @Autowired
+    HttpTool httpTool;
+    @Value("${emq.api.host}")
+    String apiHost;
+    @Value("${emq.node.name}")
+    String emqNodeName;
 
     public EMqttPahoMessageDrivenChannelAdapter(String url, String clientId, MqttPahoClientFactory clientFactory, String... topic) {
         super(url, clientId, topic);
@@ -105,7 +120,7 @@ public class EMqttPahoMessageDrivenChannelAdapter extends AbstractMqttMessageDri
                 this.client.close();
             } catch (MqttException var2) {
                 //this.logger.error("Exception while closing", var2);
-                this.logger.error("Exception while closing" );
+                this.logger.error("Exception while closing");
             }
 
             this.connected = false;
@@ -150,6 +165,7 @@ public class EMqttPahoMessageDrivenChannelAdapter extends AbstractMqttMessageDri
 
     /**
      * 执行订阅
+     *
      * @throws MqttException
      */
     private synchronized void connectAndSubscribe() throws MqttException {
@@ -192,8 +208,12 @@ public class EMqttPahoMessageDrivenChannelAdapter extends AbstractMqttMessageDri
              * 当连接失败或者ACL 拒绝的时候，这里抛出异常，此时就需要检查EMQ的配置了
              */
 
-            //this.logger.error("Error connecting or subscribing to " + Arrays.toString(topics), var9);
             this.logger.error("EMQ配置错误，导致EasyLinker无法连接，检查配置！");
+            //连接失败以后,吧数据库里面的状态更新一下
+            EMQInfo emqInfo = new EMQInfo();
+            emqInfo.setId(1L);
+            emqInfo.setConnected(false);
+            emqInfoService.save(emqInfo);
             this.client.disconnectForcibly((long) this.completionTimeout);
             throw var9;
         } finally {
@@ -210,6 +230,12 @@ public class EMqttPahoMessageDrivenChannelAdapter extends AbstractMqttMessageDri
             if (this.applicationEventPublisher != null) {
                 this.applicationEventPublisher.publishEvent(new MqttSubscribedEvent(this, message));
             }
+            //连接成功  management/nodes/emq@127.0.0.1
+            EMQInfo emqInfo = new EMQInfo();
+            emqInfo.setId(1L);
+            emqInfo.setConnected(true);
+            emqInfoService.save(emqInfo);
+
         }
 
     }
@@ -260,6 +286,7 @@ public class EMqttPahoMessageDrivenChannelAdapter extends AbstractMqttMessageDri
 
     /**
      * 连接断开
+     *
      * @param cause
      */
     public synchronized void connectionLost(Throwable cause) {
@@ -275,6 +302,7 @@ public class EMqttPahoMessageDrivenChannelAdapter extends AbstractMqttMessageDri
 
     /**
      * 消息到达
+     *
      * @param topic
      * @param mqttMessage
      * @throws Exception
