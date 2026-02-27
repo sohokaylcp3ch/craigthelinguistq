@@ -71,7 +71,7 @@ public class DeviceController {
         if (device.getAppUser() == null)
             return ReturnResult.returnTipMessage(0, "设备未绑定!");
         if (device != null) {
-            JSONArray data = deviceDataService.getAllDeviceDataByDevice(device, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
+            JSONArray data = deviceDataService.getAllDeviceDataByDevice(device, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime")));
 
             return ReturnResult.returnDataMessage(1, "查询成功!", data);
 
@@ -112,7 +112,7 @@ public class DeviceController {
      */
     @RequestMapping(value = "/getAllLog/{page}/{size}", method = RequestMethod.GET)
     public JSONObject getAllLog(@PathVariable int page, @PathVariable int size) {
-        return ReturnResult.returnDataMessage(1, "查询成功!", deviceOnAndOffLineLogService.getAllLog(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceOnAndOffLineLogService.getAllLog(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
 
 
     }

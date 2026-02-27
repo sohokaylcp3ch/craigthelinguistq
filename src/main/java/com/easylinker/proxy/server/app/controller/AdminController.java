@@ -181,7 +181,7 @@ public class AdminController {
     @RequestMapping(value = "/getAllDevices/{page}/{size}", method = RequestMethod.GET)
     public JSONObject getAllDevices(@PathVariable int page, @PathVariable int size) {
         return ReturnResult.returnDataMessage(1, "查询成功!",
-                deviceService.getAllDevices(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+                deviceService.getAllDevices(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
 
     }
 
@@ -269,7 +269,7 @@ public class AdminController {
     public JSONObject getAllUsersByPage(@PathVariable int page, @PathVariable int size) {
 
         return ReturnResult.returnDataMessage(1, "获取成功!", appUserService.getAllUsersByPage(
-                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
 
     }
 
@@ -293,7 +293,7 @@ public class AdminController {
     @RequestMapping(value = "/getAllGroupByPage/{page}/{size}", method = RequestMethod.GET)
     public JSONObject getAllGroupByPage(@PathVariable int page, @PathVariable int size) {
         return ReturnResult.returnDataMessage(1, "获取成功!",
-                deviceGroupService.getAllDeviceGroupByPage(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+                deviceGroupService.getAllDeviceGroupByPage(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
 
     }
 
