@@ -316,5 +316,13 @@ public class UserController {
         }
     }
 
+    /**
+     * 关键字搜索
+     */
+    @RequestMapping(value = "/search/{id]", method = RequestMethod.POST)
+    public JSONObject search(@PathVariable String keyWords) {
+
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.search(keyWords));
+    }
 }
 

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -29,7 +30,15 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     @Query(
             "select id from Device "
     )
-    List <Long>findAllId();
+    List<Long> findAllId();
 
+    /**
+     * 条件查询
+     * @param keyWords
+     * @return
+     */
+
+    @Query("select device from Device device where  device.deviceDescribe like %:keyWords%  or device.deviceName  like %:keyWords% ")
+    List<Device> searchDevice(@Param(value = "keyWords") String keyWords);
 
 }
