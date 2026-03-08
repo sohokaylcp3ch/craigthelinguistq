@@ -13,10 +13,6 @@ import java.util.List;
 
 public interface DeviceRepository extends JpaRepository<Device, Long> {
     Device findTopById(Long id);
-
-    Device findTopByOpenId(Long openId);
-
-
     List<Device> findAllByAppUser(AppUser appUser);
 
     Page<Device> findAllByAppUser(AppUser appUser, Pageable pageable);
@@ -27,13 +23,12 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
 
     List<Device> findAllByIsOnline(Boolean online);
 
-    @Query(
-            "select id from Device "
-    )
+    @Query("select id from Device ")
     List<Long> findAllId();
 
     /**
      * 条件查询
+     *
      * @param keyWords
      * @return
      */
