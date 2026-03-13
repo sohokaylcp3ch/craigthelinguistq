@@ -11,13 +11,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class BarCodeGenerator {
-    public static void main(String[] args) {
-        Device device = new Device();
-        device.setDeviceName("仓库的盒子");
-        device.setDeviceDescribe("仓库的盒子");
-        device.setOpenId("1234412423115");
-        createBarCodeImage(device);
-    }
 
     public static void createBarCodeImage(Device device) {
         int width = 600;
