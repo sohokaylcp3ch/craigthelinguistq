@@ -269,6 +269,44 @@ public class DeviceService {
              */
 
             JSONObject locationJson = new JSONObject();
+            locationJson.put("describe", device.getLocation().getLocationDescribe());
+            locationJson.put("latitude", device.getLocation().getLatitude());
+            locationJson.put("longitude", device.getLocation().getLongitude());
+            deviceJson.put("location", locationJson);
+            deviceJson.put("lastActiveDate", device.getLastActiveDate());
+            data.add(deviceJson);
+        }
+
+        return data;
+    }
+
+
+
+
+
+    /**
+     * 当前用户关键字搜索
+     *
+     * @return
+     */
+    public JSONArray searchByAppUser(String keyWords,AppUser appUser) {
+        List<Device> deviceList = deviceRepository.searchDeviceByAppUser(keyWords,appUser);
+        JSONArray data = new JSONArray();
+        for (Device device : deviceList) {
+            JSONObject deviceJson = new JSONObject();
+            deviceJson.put("user", device.getAppUser().getId());
+            deviceJson.put("key", device.getSecretKey());
+            deviceJson.put("id", device.getId());
+            deviceJson.put("isOnline", device.isOnline());
+            deviceJson.put("barCode", device.getBarCode());
+            deviceJson.put("openId", device.getOpenId());
+            deviceJson.put("name", device.getDeviceName());
+            deviceJson.put("describe", device.getDeviceDescribe());
+            /**
+             * 地理位置
+             */
+
+            JSONObject locationJson = new JSONObject();
             locationJson.put("latitude", device.getLocation().getLatitude());
             locationJson.put("longitude", device.getLocation().getLongitude());
             locationJson.put("describe", device.getLocation().getLocationDescribe());

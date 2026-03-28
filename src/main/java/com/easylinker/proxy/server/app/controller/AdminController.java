@@ -317,5 +317,15 @@ public class AdminController {
         return ReturnResult.returnDataMessage(1, "查询成功!", data);
     }
 
-
+    /**
+     * 关键字搜索所有
+     */
+    @RequestMapping(method = RequestMethod.POST)
+    public JSONObject search(@RequestBody JSONObject keyWordsJson) {
+        if (keyWordsJson.getString("keyWords") != null) {
+            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.search(keyWordsJson.getString("keyWords")));
+        } else {
+            return ReturnResult.returnTipMessage(0, "查询参数不完整!");
+        }
+    }
 }

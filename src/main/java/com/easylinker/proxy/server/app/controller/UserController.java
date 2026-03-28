@@ -316,13 +316,21 @@ public class UserController {
         }
     }
 
-    /**
-     * 关键字搜索
-     */
-    @RequestMapping(value = "/search/{id]", method = RequestMethod.POST)
-    public JSONObject search(@PathVariable String keyWords) {
 
-        return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.search(keyWords));
+
+    /**
+     * 当前用户关键字搜索
+     */
+    @RequestMapping(value = "/searchByAppUser", method = RequestMethod.POST)
+    public JSONObject searchByAppUser(@RequestBody JSONObject keyWordsJson) {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (keyWordsJson.getString("keyWords")!=null){
+            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.searchByAppUser(keyWordsJson.getString("keyWords"),appUser));
+
+        }else {
+            return ReturnResult.returnTipMessage(0, "查询参数不完整!");
+        }
+
     }
 }
 

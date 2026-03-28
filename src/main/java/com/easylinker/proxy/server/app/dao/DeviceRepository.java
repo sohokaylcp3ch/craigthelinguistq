@@ -27,7 +27,7 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     List<Long> findAllId();
 
     /**
-     * 条件查询
+     * 条件查询所有
      *
      * @param keyWords
      * @return
@@ -35,5 +35,14 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
 
     @Query("select device from Device device where  device.deviceDescribe like %:keyWords%  or device.deviceName  like %:keyWords% ")
     List<Device> searchDevice(@Param(value = "keyWords") String keyWords);
+
+    /**
+     * 当前用户条件查询
+     *
+     * @param keyWords
+     * @return
+     */
+    @Query("select device from Device device where  device.deviceDescribe like %:keyWords%  or device.deviceName  like %:keyWords% and device.appUser = :appUser")
+    List<Device> searchDeviceByAppUser(@Param(value = "keyWords") String keyWords,@Param(value = "appUser")AppUser appUser);
 
 }

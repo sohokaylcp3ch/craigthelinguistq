@@ -129,10 +129,13 @@
             <artifactId>java-sdk</artifactId>
             <version>3.20</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
+
     </dependencies>
 
     <build>
