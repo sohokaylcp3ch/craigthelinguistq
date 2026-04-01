@@ -70,10 +70,7 @@ public class AdminController {
         } else {
 
             Device device = new Device();
-            //DeviceGroup deviceGroup = new DeviceGroup();
-//            deviceGroup.setComment("默认分组");
-//            deviceGroup.setGroupName(groupName);
-//            deviceGroupService.save(deviceGroup);//保存分组
+
             device.setDeviceGroup(null);
             device.setAppUser(null);
             device.setLastActiveDate(new Date());
@@ -124,11 +121,6 @@ public class AdminController {
         } else if (!deviceNamePrefix.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备名称不下6位!");
         } else {
-//            //DeviceGroup deviceGroup = new DeviceGroup();
-//            deviceGroup.setAppUser(null);
-//            deviceGroup.setComment("默认分组");
-//            deviceGroup.setGroupName(groupName);
-//            deviceGroupService.save(deviceGroup);//所有新增加的设备，分组一样,保存分组
 
             for (int i = 0; i < deviceSum; i++) {
                 Location location = new Location();
@@ -139,7 +131,7 @@ public class AdminController {
                 Device device = new Device();
                 device.setDeviceGroup(null);
                 device.setLastActiveDate(new Date());
-                device.setDeviceName(deviceNamePrefix + "_Auto_" + i);
+                device.setDeviceName(deviceNamePrefix + "_" + i);
                 device.setDeviceDescribe("Product_" + i);
                 device.setClientId(device.getId().toString());
                 //设置ACL  默认值

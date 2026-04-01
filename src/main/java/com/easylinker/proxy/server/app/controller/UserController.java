@@ -279,7 +279,10 @@ public class UserController {
             device.setDeviceGroup(deviceGroup);
             device.setAppUser(appUser);
             device.setLastActiveDate(new Date());
-            device.setDeviceName(deviceName);
+
+            device.setDeviceName(deviceNamePrefix+"_"+ deviceName);
+
+
             device.setDeviceDescribe(deviceDescribe);
             device.setClientId(device.getId().toString());
             device.setSecretKey(appUser.getId() + "-" + deviceGroup.getId() + "-" + device.getId());
