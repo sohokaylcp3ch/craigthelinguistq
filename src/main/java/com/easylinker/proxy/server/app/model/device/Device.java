@@ -6,6 +6,7 @@ import com.easylinker.proxy.server.app.model.user.AppUser;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 /**
@@ -25,12 +26,13 @@ public class Device extends BaseEntity {
     private Integer allow = 1;
     //1: subscribe, 2: publish, 3: pubsub
     private Integer access = 3;
-    @OneToOne(targetEntity = Location.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = Location.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Location location;
-
+    @OneToMany(targetEntity = HistoryLocation.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<HistoryLocation> historyLocationList;
     @ManyToOne(targetEntity = DeviceGroup.class, fetch = FetchType.LAZY)
     private DeviceGroup deviceGroup;
-    private String secretKey="-.-.-";
+    private String secretKey = "-.-.-";
 
     public String getSecretKey() {
         return secretKey;
@@ -161,5 +163,11 @@ public class Device extends BaseEntity {
         this.location = location;
     }
 
+    public List<HistoryLocation> getHistoryLocationList() {
+        return historyLocationList;
+    }
 
+    public void setHistoryLocationList(List<HistoryLocation> historyLocationList) {
+        this.historyLocationList = historyLocationList;
+    }
 }

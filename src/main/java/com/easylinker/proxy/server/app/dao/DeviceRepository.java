@@ -42,7 +42,7 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
      * @param keyWords
      * @return
      */
-    @Query("select device from Device device where  device.deviceDescribe like %:keyWords%  or device.deviceName  like %:keyWords% and device.appUser = :appUser")
+    @Query("select device from Device device where  (device.deviceDescribe like %:keyWords%  or device.deviceName  like %:keyWords%)and device.appUser = :appUser")
     List<Device> searchDeviceByAppUser(@Param(value = "keyWords") String keyWords,@Param(value = "appUser")AppUser appUser);
 
 }
