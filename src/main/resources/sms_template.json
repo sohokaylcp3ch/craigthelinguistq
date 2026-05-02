@@ -1,0 +1,16 @@
+{
+  "title": "注册成功,请激活账户!",
+  "group": "XXX科技公司/组织/机构",
+  "url": "http://host/user/activeUser/",
+  "content": [
+    {
+      "text": "欢迎注册"
+    },
+    {
+      "text": "额外的邮件信息"
+    },
+    {
+      "text": "额外的邮件信息"
+    }
+  ]
+}
