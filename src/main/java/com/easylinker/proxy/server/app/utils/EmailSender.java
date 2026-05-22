@@ -149,34 +149,4 @@ public class EmailSender {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-
-
-        BufferedReader bufferedReader = new BufferedReader(
-                new InputStreamReader(EmailSender.class.getResourceAsStream("/sms_template.json")));
-        StringBuffer pluginConfigJsonStringBuffer = new StringBuffer();
-        String line;
-        while ((line = bufferedReader.readLine()) != null) {
-            pluginConfigJsonStringBuffer.append(line);
-        }
-        bufferedReader.close();
-        System.out.println(pluginConfigJsonStringBuffer);
-
-        JSONObject smsTemplateJson = JSONObject.parseObject(pluginConfigJsonStringBuffer.toString());
-        JSONArray contentJsonArray = smsTemplateJson.getJSONArray("content");
-        String title = smsTemplateJson.getString("title");
-        String group = smsTemplateJson.getString("group");
-        String url = smsTemplateJson.getString("url");
-
-        BufferedReader htmlBufferedReader = new BufferedReader(
-                new InputStreamReader(EmailSender.class.getResourceAsStream("/html_mail_template.html")));
-        StringBuffer htmlBuffer = new StringBuffer();
-        String html;
-        while ((html = htmlBufferedReader.readLine()) != null) {
-            htmlBuffer.append(html);
-        }
-        System.out.println(htmlBuffer.toString().replace("${title}", title).replace("${group}", group).replace("${url}", url + "/123456"));
-
-
-    }
 }
