@@ -53,14 +53,6 @@ public class EmailSender {
         helper.setFrom(mailUsername);
         helper.setTo(appUser.getEmail());
         helper.setSubject("激活账户");
-
-//            StringBuffer sb = new StringBuffer();
-//            sb.append("<h1>激活账户</h1>")
-//                    .append("<div>")
-//                    .append("<p>账户注册成功,请激活账户!</p>")
-//                    .append("<p>激活参数:activeCode,可以是username,或者email ,phone参数!</p>")
-//                    .append("<p><a href=\"#\">激活账户,默认路径:[http://host/user/activeUser/{activeCode}]可以根据自己的需求改.</a></div>")
-//                    .append("</div>");
         helper.setText(getSMSTemplate(appUser).toString(), true);
         mailSender.send(message);
 
@@ -74,9 +66,8 @@ public class EmailSender {
      * @return
      */
 
-    public String getSMSTemplate(AppUser appUser) {
+    public String getSMSTemplate(AppUser appUser) throws Exception{
 
-        try {
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(this.getClass().getResourceAsStream("/sms_template.json")));
             StringBuffer pluginConfigJsonStringBuffer = new StringBuffer();
@@ -100,12 +91,6 @@ public class EmailSender {
                 htmlBuffer.append(html);
             }
             return htmlBuffer.toString().replace("${title}", title).replace("${group}", group).replace("${url}", url + "/" + appUser.getId());
-
-        } catch (Exception e) {
-            //e.printStackTrace();
-            logger.error("加载插件的时候出错:" + e.getMessage());
-            return null;
-        }
 
     }
 
