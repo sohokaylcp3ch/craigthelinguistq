@@ -2,26 +2,18 @@ package com.easylinker.proxy.server.app.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.easylinker.proxy.server.app.config.upyunconfig.UpYunConfig;
-import com.easylinker.proxy.server.app.interfaces.InterceptorPlugin;
 import com.easylinker.proxy.server.app.model.user.AppUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import javax.mail.internet.MimeMessage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
 
 @Component
 public class EmailSender {
@@ -69,7 +61,7 @@ public class EmailSender {
     public String getSMSTemplate(AppUser appUser) throws Exception{
 
             BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(this.getClass().getResourceAsStream("/sms_template.json")));
+                    new InputStreamReader(this.getClass().getResourceAsStream("/mail_template.json")));
             StringBuffer pluginConfigJsonStringBuffer = new StringBuffer();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
