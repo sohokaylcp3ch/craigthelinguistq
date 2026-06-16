@@ -74,7 +74,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/userLogin",//登陆
                         "/user/register",//注册
 
-                        "/user/active"//激活
+                        "/user/activeUser"//激活
                 )
                 .permitAll();
 
