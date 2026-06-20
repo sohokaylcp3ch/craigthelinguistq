@@ -1,7 +1,7 @@
 {
   "title": "注册成功,请激活账户!",
   "group": "XXX科技公司/组织/机构",
-  "ip": "http://106.12.27.74/user/activeUser/",
+  "url": "http://106.12.27.74/user/activeUser/",
   "content": [
     {
       "text": "欢迎注册"
