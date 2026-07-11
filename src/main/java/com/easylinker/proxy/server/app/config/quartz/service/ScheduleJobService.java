@@ -28,32 +28,27 @@ public class ScheduleJobService {
     /**
      * 添加定时任务
      */
-    public void add(ScheduleJob scheduleJob) {
+    public void add(ScheduleJob scheduleJob) throws Exception {
         @SuppressWarnings("rawtypes")
         Class job = null;
-        try {
-            job = Class.forName(scheduleJob.getClassName());
-        } catch (ClassNotFoundException e1) {
-            log.error("任务类没找到");
-            e1.printStackTrace();
-        }
+        job = Class.forName(scheduleJob.getClassName());
+
         @SuppressWarnings("unchecked")
-        JobDetail jobDetail = JobBuilder.newJob(job).withIdentity(scheduleJob.getName(), scheduleJob.getGroup()).build();
+        JobDetail jobDetail = JobBuilder.newJob(job).withIdentity(scheduleJob.getId().toString(), scheduleJob.getGroup()).build();
         jobDetail.getJobDataMap().put("scheduleJob", scheduleJob);
 
         //表达式调度构建器（可判断创建SimpleScheduleBuilder）
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(scheduleJob.getCronExpression());
         //按新的cronExpression表达式构建一个新的trigger
+        //withIdentity 任务标识
         CronTrigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity(scheduleJob.getName(), scheduleJob.getGroup())
+                .withIdentity(scheduleJob.getId().toString(), scheduleJob.getGroup())
                 .withDescription(scheduleJob.getDescription())
                 .withSchedule(scheduleBuilder).build();
-        try {
-            scheduler.scheduleJob(jobDetail, trigger);
-            log.info("定时任务添加成功");
-        } catch (SchedulerException e) {
-            e.printStackTrace();
-        }
+
+        scheduler.scheduleJob(jobDetail, trigger);
+        log.info("定时任务添加成功");
+
     }
 
     /**

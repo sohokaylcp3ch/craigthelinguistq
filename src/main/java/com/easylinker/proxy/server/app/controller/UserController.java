@@ -2,6 +2,8 @@ package com.easylinker.proxy.server.app.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.easylinker.proxy.server.app.config.quartz.pojo.ScheduleJob;
+import com.easylinker.proxy.server.app.config.quartz.service.ScheduleJobService;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceGroup;
 import com.easylinker.proxy.server.app.model.device.Location;
@@ -40,6 +42,9 @@ public class UserController {
     DeviceGroupService deviceGroupService;
     @Autowired
     LocationService locationService;
+
+    @Autowired
+    ScheduleJobService scheduleJobService;
 
     /**
      * 把单个设备绑定到用户
@@ -280,7 +285,7 @@ public class UserController {
             device.setAppUser(appUser);
             device.setLastActiveDate(new Date());
 
-            device.setDeviceName(deviceNamePrefix+"_"+ deviceName);
+            device.setDeviceName(deviceNamePrefix + "_" + deviceName);
 
 
             device.setDeviceDescribe(deviceDescribe);
@@ -320,23 +325,65 @@ public class UserController {
     }
 
 
-
     /**
      * 当前用户关键字搜索
      */
     @RequestMapping(value = "/searchByAppUser", method = RequestMethod.POST)
     public JSONObject searchByAppUser(@RequestBody JSONObject keyWordsJson) {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (keyWordsJson.getString("keyWords")!=null){
-            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.searchByAppUser(keyWordsJson.getString("keyWords"),appUser));
+        if (keyWordsJson.getString("keyWords") != null) {
+            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.searchByAppUser(keyWordsJson.getString("keyWords"), appUser));
 
-        }else {
+        } else {
             return ReturnResult.returnTipMessage(0, "查询参数不完整!");
         }
 
     }
+
     /**
      * 添加一个定时任务
      */
-}
+    @RequestMapping(value = "/addJob", method = RequestMethod.POST)
 
+    public JSONObject addJob(@RequestBody JSONObject jobBody) {
+
+        String name = jobBody.getString("name");
+        String group = jobBody.getString("group");
+        String cronExpression = jobBody.getString("cronExpression");
+        String description = jobBody.getString("description");
+        String className = jobBody.getString("className");
+        Long deviceId = jobBody.getLongValue("deviceId");
+        String status = jobBody.getString("status");
+
+        if (name == null || group == null || cronExpression == null || description == null || className == null || deviceId == null || status == null) {
+            return ReturnResult.returnTipMessage(0, "参数缺少!");
+        } else {
+            Device device = deviceService.findADevice(deviceId);
+            if (device != null) {
+
+                ScheduleJob scheduleJob = new ScheduleJob();
+                scheduleJob.setDevice(device);
+                scheduleJob.setName(name);
+                scheduleJob.setGroup(group);
+                scheduleJob.setCronExpression(cronExpression);
+                scheduleJob.setClassName(className);
+                scheduleJob.setDescription(description);
+                scheduleJob.setStatus(status);
+                try {
+                    scheduleJobService.add(scheduleJob);
+                    return ReturnResult.returnTipMessage(1, "任务添加成功!");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return ReturnResult.returnTipMessage(0, "任务添加失败!");
+                }
+
+
+            } else {
+                return ReturnResult.returnTipMessage(0, "设备不存在!");
+            }
+        }
+
+
+    }
+
+}

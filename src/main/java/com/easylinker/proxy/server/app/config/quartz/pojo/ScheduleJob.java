@@ -21,9 +21,17 @@ public class ScheduleJob extends BaseEntity implements Serializable {
     private String className;    //要执行的任务类路径名
 
 
-    @OneToOne(targetEntity = Device.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = Device.class, fetch = FetchType.LAZY)
 
     private Device device;
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
+    }
 
     public ScheduleJob() {
         super();

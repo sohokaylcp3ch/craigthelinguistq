@@ -36,20 +36,20 @@ public class ScheduleJobController {
     /**
      * 添加
      */
-    @PostMapping(value = "/add")
-    @ResponseBody
-    public String create(String name, String group, String cronExpression, String description, String className,
-                         @RequestParam(required = false, defaultValue = "1") String status) {
-        ScheduleJob scheduleJob = new ScheduleJob();
-        scheduleJob.setName(name);
-        scheduleJob.setGroup(group);
-        scheduleJob.setCronExpression(cronExpression);
-        scheduleJob.setClassName(className);
-        scheduleJob.setDescription(description);
-        scheduleJob.setStatus(status);
-        scheduleJobService.add(scheduleJob);
-        return "add";
-    }
+//    @PostMapping(value = "/add")
+//    @ResponseBody
+//    public String create(String name, String group, String cronExpression, String description, String className,
+//                         @RequestParam(required = false, defaultValue = "1") String status) {
+//        ScheduleJob scheduleJob = new ScheduleJob();
+//        scheduleJob.setName(name);
+//        scheduleJob.setGroup(group);
+//        scheduleJob.setCronExpression(cronExpression);
+//        scheduleJob.setClassName(className);
+//        scheduleJob.setDescription(description);
+//        scheduleJob.setStatus(status);
+//        scheduleJobService.add(scheduleJob);
+//        return "add";
+//    }
 
     /**
      * 暂停任务
