@@ -2,6 +2,7 @@ package com.easylinker.proxy.server.app.config.quartz.service;
 
 
 import com.easylinker.proxy.server.app.config.quartz.pojo.ScheduleJob;
+import com.easylinker.proxy.server.app.config.quartz.pojo.TestJob;
 import com.easylinker.proxy.server.app.config.quartz.scheduler.QuartzJobScheduler;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -29,12 +30,10 @@ public class ScheduleJobService {
      * 添加定时任务
      */
     public void add(ScheduleJob scheduleJob) throws Exception {
-        @SuppressWarnings("rawtypes")
-        Class job = null;
-        job = Class.forName(scheduleJob.getClassName());
 
-        @SuppressWarnings("unchecked")
-        JobDetail jobDetail = JobBuilder.newJob(job).withIdentity(scheduleJob.getId().toString(), scheduleJob.getGroup()).build();
+        JobDetail jobDetail = JobBuilder.newJob()
+                .withIdentity(scheduleJob.getId().toString(), scheduleJob.getGroup()).build();
+
         jobDetail.getJobDataMap().put("scheduleJob", scheduleJob);
 
         //表达式调度构建器（可判断创建SimpleScheduleBuilder）

@@ -3,6 +3,7 @@ package com.easylinker.proxy.server.app.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.config.quartz.pojo.ScheduleJob;
+import com.easylinker.proxy.server.app.config.quartz.scheduler.QuartzJobScheduler;
 import com.easylinker.proxy.server.app.config.quartz.service.ScheduleJobService;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceGroup;
@@ -15,6 +16,7 @@ import com.easylinker.proxy.server.app.service.DeviceService;
 import com.easylinker.proxy.server.app.service.LocationService;
 import com.easylinker.proxy.server.app.utils.Image2Base64Tool;
 import com.easylinker.proxy.server.app.utils.QRCodeGenerator;
+import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,7 +35,8 @@ import java.util.List;
  */
 public class UserController {
     private static final String REG_1_Z = "(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
-
+    @Autowired
+    QuartzJobScheduler scheduler;
     @Autowired
     AppUserService appUserService;
     @Autowired
@@ -386,4 +389,27 @@ public class UserController {
 
     }
 
+    public void addJob(ScheduleJob scheduleJob)throws Exception{
+
+        // 启动调度器
+        scheduler.start();
+
+        //构建job信息
+        JobDetail jobDetail = JobBuilder.newJob().withIdentity(scheduleJob.getId().toString(), scheduleJob.getGroup()).build();
+
+        //表达式调度构建器(即任务执行的时间)
+        CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(scheduleJob.getCronExpression());
+
+        //按新的cronExpression表达式构建一个新的trigger
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(scheduleJob.getId().toString(), scheduleJob.getGroup())
+                .withSchedule(scheduleBuilder).build();
+
+        try {
+            scheduler.scheduleJob(jobDetail, trigger);
+
+        } catch (SchedulerException e) {
+            System.out.println("创建定时任务失败"+e);
+            throw new Exception("创建定时任务失败");
+        }
+    }
 }

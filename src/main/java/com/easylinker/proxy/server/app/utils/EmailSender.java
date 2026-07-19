@@ -58,31 +58,31 @@ public class EmailSender {
      * @return
      */
 
-    public String getSMSTemplate(AppUser appUser) throws Exception{
+    public String getSMSTemplate(AppUser appUser) throws Exception {
 
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(this.getClass().getResourceAsStream("/mail_template.json")));
-            StringBuffer pluginConfigJsonStringBuffer = new StringBuffer();
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                pluginConfigJsonStringBuffer.append(line);
-            }
-            bufferedReader.close();
+        BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(this.getClass().getResourceAsStream("/mail_template.json")));
+        StringBuffer pluginConfigJsonStringBuffer = new StringBuffer();
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            pluginConfigJsonStringBuffer.append(line);
+        }
+        bufferedReader.close();
 
-            JSONObject smsTemplateJson = JSONObject.parseObject(pluginConfigJsonStringBuffer.toString());
-            JSONArray contentJsonArray = smsTemplateJson.getJSONArray("content");
-            String title = smsTemplateJson.getString("title");
-            String group = smsTemplateJson.getString("group");
-            String url = smsTemplateJson.getString("url");
+        JSONObject smsTemplateJson = JSONObject.parseObject(pluginConfigJsonStringBuffer.toString());
+        JSONArray contentJsonArray = smsTemplateJson.getJSONArray("content");
+        String title = smsTemplateJson.getString("title");
+        String group = smsTemplateJson.getString("group");
+        String url = smsTemplateJson.getString("url");
 
-            BufferedReader htmlBufferedReader = new BufferedReader(
-                    new InputStreamReader(this.getClass().getResourceAsStream("/html_mail_template.html")));
-            StringBuffer htmlBuffer = new StringBuffer();
-            String html;
-            while ((html = htmlBufferedReader.readLine()) != null) {
-                htmlBuffer.append(html);
-            }
-            return htmlBuffer.toString().replace("${title}", title).replace("${group}", group).replace("${url}", url + "/" + appUser.getId());
+        BufferedReader htmlBufferedReader = new BufferedReader(
+                new InputStreamReader(this.getClass().getResourceAsStream("/html_mail_template.html")));
+        StringBuffer htmlBuffer = new StringBuffer();
+        String html;
+        while ((html = htmlBufferedReader.readLine()) != null) {
+            htmlBuffer.append(html);
+        }
+        return htmlBuffer.toString().replace("${title}", title).replace("${group}", group).replace("${url}", appUser.getId().toString());
 
     }
 
