@@ -28,12 +28,12 @@ public abstract class BaseJob implements Job, Serializable {
      */
     @Override
     public void execute(JobExecutionContext context) {
-        logger.info("job: {}, trigger: {}, start running ", context.getJobDetail().getKey(),
-                context.getTrigger().getKey());
-        long start = System.currentTimeMillis();
+//        logger.info("job: {}, trigger: {}, start running ", context.getJobDetail().getKey(),
+//                context.getTrigger().getKey());
+//        long start = System.currentTimeMillis();
         this.action(context);
-        long end = System.currentTimeMillis();
-        logger.info("job: {}, trigger: {}, cost: {} s", context.getJobDetail().getKey(),
-                context.getTrigger().getKey(), (end - start) / 1000);
+//        long end = System.currentTimeMillis();
+////        logger.info("job: {}, trigger: {}, cost: {} s", context.getJobDetail().getKey(),
+////                context.getTrigger().getKey(), (end - start) / 1000);
     }
 }

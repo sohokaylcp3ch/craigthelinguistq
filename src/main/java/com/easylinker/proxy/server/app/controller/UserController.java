@@ -1,23 +1,20 @@
 package com.easylinker.proxy.server.app.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.easylinker.proxy.server.app.config.quartz.pojo.ScheduleJob;
+import com.easylinker.proxy.server.app.config.quartz.job.ScheduleSendMessageJob;
+import com.easylinker.proxy.server.app.config.quartz.pojo.BaseJob;
 import com.easylinker.proxy.server.app.config.quartz.scheduler.QuartzJobScheduler;
-import com.easylinker.proxy.server.app.config.quartz.service.ScheduleJobService;
-import com.easylinker.proxy.server.app.model.device.Device;
-import com.easylinker.proxy.server.app.model.device.DeviceGroup;
-import com.easylinker.proxy.server.app.model.device.Location;
-import com.easylinker.proxy.server.app.model.user.AppUser;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
-import com.easylinker.proxy.server.app.service.AppUserService;
-import com.easylinker.proxy.server.app.service.DeviceGroupService;
-import com.easylinker.proxy.server.app.service.DeviceService;
-import com.easylinker.proxy.server.app.service.LocationService;
+import com.easylinker.proxy.server.app.model.device.*;
+import com.easylinker.proxy.server.app.model.user.AppUser;
+import com.easylinker.proxy.server.app.service.*;
+import com.easylinker.proxy.server.app.utils.HttpTool;
 import com.easylinker.proxy.server.app.utils.Image2Base64Tool;
 import com.easylinker.proxy.server.app.utils.QRCodeGenerator;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -35,8 +31,10 @@ import java.util.List;
  */
 public class UserController {
     private static final String REG_1_Z = "(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
+
     @Autowired
-    QuartzJobScheduler scheduler;
+    @Qualifier("Scheduler")
+    Scheduler scheduler;
     @Autowired
     AppUserService appUserService;
     @Autowired
@@ -47,7 +45,12 @@ public class UserController {
     LocationService locationService;
 
     @Autowired
-    ScheduleJobService scheduleJobService;
+    DeviceJobService deviceJobService;
+
+    @Autowired
+    HttpTool httpTool;
+    @Value("${emq.api.host}")
+    String apiHost;
 
     /**
      * 把单个设备绑定到用户
@@ -349,35 +352,45 @@ public class UserController {
     @RequestMapping(value = "/addJob", method = RequestMethod.POST)
 
     public JSONObject addJob(@RequestBody JSONObject jobBody) {
-
-        String name = jobBody.getString("name");
-        String group = jobBody.getString("group");
+//        String status = jobBody.getString("status");
+//        String name = jobBody.getString("name");
+//        String group = jobBody.getString("group");
+//        String description = jobBody.getString("description");
+//        String className = jobBody.getString("className");
         String cronExpression = jobBody.getString("cronExpression");
-        String description = jobBody.getString("description");
-        String className = jobBody.getString("className");
-        Long deviceId = jobBody.getLongValue("deviceId");
-        String status = jobBody.getString("status");
+        JSONObject jobJson = jobBody.getJSONObject("jobJson");
 
-        if (name == null || group == null || cronExpression == null || description == null || className == null || deviceId == null || status == null) {
+        Long deviceId = jobBody.getLongValue("deviceId");
+
+        if (cronExpression == null || deviceId == null || jobJson == null) {
             return ReturnResult.returnTipMessage(0, "参数缺少!");
         } else {
             Device device = deviceService.findADevice(deviceId);
+            //惯例,检查设备是否存在
             if (device != null) {
+                //检查是否该设备已经绑定了任务
+                if (deviceJobService.findAJobByDevice(device) != null) {
+                    return ReturnResult.returnTipMessage(0, "设备已经绑定任务!");
+                } else {
+                    DeviceJob scheduleJob = new DeviceJob();
+                    scheduleJob.setDevice(device);
+                    scheduleJob.setCronExpression(cronExpression);
+                    scheduleJob.setJobJson(jobJson.toJSONString());
 
-                ScheduleJob scheduleJob = new ScheduleJob();
-                scheduleJob.setDevice(device);
-                scheduleJob.setName(name);
-                scheduleJob.setGroup(group);
-                scheduleJob.setCronExpression(cronExpression);
-                scheduleJob.setClassName(className);
-                scheduleJob.setDescription(description);
-                scheduleJob.setStatus(status);
-                try {
-                    scheduleJobService.add(scheduleJob);
-                    return ReturnResult.returnTipMessage(1, "任务添加成功!");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return ReturnResult.returnTipMessage(0, "任务添加失败!");
+                    try {
+                        addJob(scheduleJob);
+                        deviceJobService.save(scheduleJob);
+
+                        return ReturnResult.returnTipMessage(1, "任务添加成功!");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        if (e instanceof RuntimeException) {
+
+                            return ReturnResult.returnTipMessage(0, "CRON表达式格式错误!");
+                        }
+                        return ReturnResult.returnTipMessage(0, "任务添加失败!");
+                    }
+
                 }
 
 
@@ -389,27 +402,82 @@ public class UserController {
 
     }
 
-    public void addJob(ScheduleJob scheduleJob)throws Exception{
 
-        // 启动调度器
-        scheduler.start();
+    /**
+     * 添加一个定时任务
+     */
+    @RequestMapping(value = "/stopJob/{deviceId}", method = RequestMethod.GET)
+    public JSONObject stopJob(@PathVariable("deviceId") Long deviceId) {
+        //scheduler.deleteJob(JobKey.jobKey(device.getOpenId(), "JOB_GROUP"));
+        Device device = deviceService.findADevice(deviceId);
+        //惯例,检查设备是否存在
+        if (device != null) {
+            //检查是否该设备已经绑定了任务
+            DeviceJob deviceJob = deviceJobService.findAJobByDevice(device);
+            if (deviceJob == null) {
+                return ReturnResult.returnTipMessage(0, "设备没有绑定任务!");
 
-        //构建job信息
-        JobDetail jobDetail = JobBuilder.newJob().withIdentity(scheduleJob.getId().toString(), scheduleJob.getGroup()).build();
+            } else {
+                try {
+//通过ID来删除
+//                    System.out.println("删除JOB:" + deviceJob.getId().toString() + "--" + deviceJob.getJobGroup());
+//                    scheduler.deleteJob(JobKey.jobKey(deviceJob.getId().toString(), "JOB_GROUP"));
+//                    deviceJobService.delete(deviceJob);
+                    deleteJob(deviceJob);
+                    return ReturnResult.returnTipMessage(1, "设备任务取消成功!");
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    return ReturnResult.returnTipMessage(0, "设备任务取消失败!");
+                }
+            }
+        } else {
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+        }
+
+    }
+
+    /**
+     * 给设备增加要给定时任务
+     *
+     * @param scheduleJob
+     * @throws Exception
+     */
+
+    public void addJob(DeviceJob scheduleJob) throws Exception {
+        System.out.println("添加新JOB:" + scheduleJob.getId().toString() + "--" + scheduleJob.getJobGroup());
+
+        if (scheduler.isShutdown()) scheduler.start();
+        JobDetail jobDetail = JobBuilder.newJob(ScheduleSendMessageJob.class)
+
+                .withIdentity(scheduleJob.getId().toString(), scheduleJob.getJobGroup()).build();
+        jobDetail.getJobDataMap().putAsString("deviceId", scheduleJob.getDevice().getId());
 
         //表达式调度构建器(即任务执行的时间)
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(scheduleJob.getCronExpression());
 
+
         //按新的cronExpression表达式构建一个新的trigger
-        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(scheduleJob.getId().toString(), scheduleJob.getGroup())
+        CronTrigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity(scheduleJob.getId().toString(), scheduleJob.getJobGroup())
                 .withSchedule(scheduleBuilder).build();
+        trigger.getJobDataMap().put("cron", scheduleJob.getCronExpression());
+        trigger.getJobDataMap().put("jobJson", scheduleJob.getJobJson());
+        trigger.getJobDataMap().put("apiHost", apiHost);
+        scheduler.scheduleJob(jobDetail, trigger);
 
-        try {
-            scheduler.scheduleJob(jobDetail, trigger);
-
-        } catch (SchedulerException e) {
-            System.out.println("创建定时任务失败"+e);
-            throw new Exception("创建定时任务失败");
-        }
     }
+
+    /**
+     * 删除定时任务
+     *
+     * @param deviceJob
+     * @throws Exception
+     */
+    public void deleteJob(DeviceJob deviceJob) throws Exception {
+        //通过ID来删除
+        System.out.println("删除JOB:" + deviceJob.getId().toString() + "--" + deviceJob.getJobGroup());
+        scheduler.deleteJob(JobKey.jobKey(deviceJob.getId().toString(), "JOB_GROUP"));
+        deviceJobService.delete(deviceJob);
+    }
+
 }
