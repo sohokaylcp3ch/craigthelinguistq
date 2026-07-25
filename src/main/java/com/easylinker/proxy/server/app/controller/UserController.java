@@ -2,16 +2,19 @@ package com.easylinker.proxy.server.app.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.config.quartz.job.ScheduleSendMessageJob;
-import com.easylinker.proxy.server.app.config.quartz.pojo.BaseJob;
-import com.easylinker.proxy.server.app.config.quartz.scheduler.QuartzJobScheduler;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
-import com.easylinker.proxy.server.app.model.device.*;
+import com.easylinker.proxy.server.app.model.device.Device;
+import com.easylinker.proxy.server.app.model.device.DeviceGroup;
+import com.easylinker.proxy.server.app.model.device.DeviceJob;
+import com.easylinker.proxy.server.app.model.device.Location;
 import com.easylinker.proxy.server.app.model.user.AppUser;
 import com.easylinker.proxy.server.app.service.*;
 import com.easylinker.proxy.server.app.utils.HttpTool;
 import com.easylinker.proxy.server.app.utils.Image2Base64Tool;
 import com.easylinker.proxy.server.app.utils.QRCodeGenerator;
 import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +34,7 @@ import java.util.Date;
  */
 public class UserController {
     private static final String REG_1_Z = "(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
+    Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     @Qualifier("Scheduler")
@@ -444,7 +448,6 @@ public class UserController {
      */
 
     public void addJob(DeviceJob scheduleJob) throws Exception {
-        System.out.println("添加新JOB:" + scheduleJob.getId().toString() + "--" + scheduleJob.getJobGroup());
 
         if (scheduler.isShutdown()) scheduler.start();
         JobDetail jobDetail = JobBuilder.newJob(ScheduleSendMessageJob.class)
@@ -464,6 +467,7 @@ public class UserController {
         trigger.getJobDataMap().put("jobJson", scheduleJob.getJobJson());
         trigger.getJobDataMap().put("apiHost", apiHost);
         scheduler.scheduleJob(jobDetail, trigger);
+        logger.info("添加新JOB:" + scheduleJob.getId().toString() + "--" + scheduleJob.getJobGroup());
 
     }
 
@@ -475,9 +479,10 @@ public class UserController {
      */
     public void deleteJob(DeviceJob deviceJob) throws Exception {
         //通过ID来删除
-        System.out.println("删除JOB:" + deviceJob.getId().toString() + "--" + deviceJob.getJobGroup());
+
         scheduler.deleteJob(JobKey.jobKey(deviceJob.getId().toString(), "JOB_GROUP"));
         deviceJobService.delete(deviceJob);
+        logger.info("删除JOB:" + deviceJob.getId().toString() + "--" + deviceJob.getJobGroup());
     }
 
 }

@@ -9,6 +9,7 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * 定时任务具体业务接口
@@ -19,8 +20,12 @@ import org.springframework.beans.factory.annotation.Value;
  * 下面可以直发送了
  */
 @DisallowConcurrentExecution
+@Component
 public class ScheduleSendMessageJob extends BaseJob {
-
+    @Autowired
+    HttpTool httpTool;
+    @Value("${emq.api.host}")
+    String apiHost;
 
     public void action(JobExecutionContext context) {
         System.out.println("定时任务:" + context.getJobDetail().getKey().getName());
@@ -38,12 +43,13 @@ public class ScheduleSendMessageJob extends BaseJob {
         try {
             //给设备发送数据
 
-           // httpTool.postWithAuthorization(context.getTrigger().getJobDataMap().getString("apiHost") + "mqtt/publish", cmd);
+           //httpTool.postWithAuthorization(context.getTrigger().getJobDataMap().getString("apiHost") + "mqtt/publish", cmd);
 
             System.out.println(cmd.toJSONString());
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("定时消息出错了!" + e.getMessage());
+
 
         }
 
