@@ -22,10 +22,21 @@ import org.springframework.stereotype.Component;
 @DisallowConcurrentExecution
 @Component
 public class ScheduleSendMessageJob extends BaseJob {
-    @Autowired
+
     HttpTool httpTool;
-    @Value("${emq.api.host}")
     String apiHost;
+
+    ScheduleSendMessageJob() {
+        //默认构造方法
+
+    }
+
+    ScheduleSendMessageJob(String apiHost, HttpTool httpTool) {
+        this.httpTool = httpTool;
+        this.apiHost = apiHost;
+
+    }
+
 
     public void action(JobExecutionContext context) {
         System.out.println("定时任务:" + context.getJobDetail().getKey().getName());
@@ -43,7 +54,7 @@ public class ScheduleSendMessageJob extends BaseJob {
         try {
             //给设备发送数据
 
-           //httpTool.postWithAuthorization(context.getTrigger().getJobDataMap().getString("apiHost") + "mqtt/publish", cmd);
+            //httpTool.postWithAuthorization(context.getTrigger().getJobDataMap().getString("apiHost") + "mqtt/publish", cmd);
 
             System.out.println(cmd.toJSONString());
         } catch (Exception e) {

@@ -356,6 +356,7 @@ public class UserController {
     @RequestMapping(value = "/addJob", method = RequestMethod.POST)
 
     public JSONObject addJob(@RequestBody JSONObject jobBody) {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //        String status = jobBody.getString("status");
 //        String name = jobBody.getString("name");
 //        String group = jobBody.getString("group");
@@ -380,7 +381,7 @@ public class UserController {
                     scheduleJob.setDevice(device);
                     scheduleJob.setCronExpression(cronExpression);
                     scheduleJob.setJobJson(jobJson.toJSONString());
-
+                    scheduleJob.setAppUser(appUser);
                     try {
                         addJob(scheduleJob);
                         deviceJobService.save(scheduleJob);
@@ -440,6 +441,15 @@ public class UserController {
 
     }
 
+
+    @RequestMapping(value = "/getAllJobByAppUser/{page}/{size}", method = RequestMethod.GET)
+
+    public JSONObject getAllJobByAppUser(@PathVariable int page, @PathVariable int size) {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceJobService.getAllJobByAppUser(appUser, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
+    }
+
+
     /**
      * 给设备增加要给定时任务
      *
@@ -484,5 +494,6 @@ public class UserController {
         deviceJobService.delete(deviceJob);
         logger.info("删除JOB:" + deviceJob.getId().toString() + "--" + deviceJob.getJobGroup());
     }
+
 
 }

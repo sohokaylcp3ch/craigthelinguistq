@@ -1,18 +1,20 @@
 package com.easylinker.proxy.server.app.model.device;
 
 import com.easylinker.proxy.server.app.model.base.BaseEntity;
+import com.easylinker.proxy.server.app.model.user.AppUser;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 @Entity
 public class DeviceJob extends BaseEntity {
-    private String jobName="DEVICE_SCHEDULE_JOB";    //任务名
+    private String jobName = "DEVICE_SCHEDULE_JOB";    //任务名
     private String jobGroup = "JOB_GROUP";    //任务组
     private String cronExpression;    //cron表达式
-    private String jobStatus="STOP";    //状态
-    private String jobDescription="DEVICE_JOB";    //描述
+    private String jobStatus = "STOP";    //状态
+    private String jobDescription = "DEVICE_JOB";    //描述
     private String jobJson;
 
     public String getJobJson() {
@@ -25,6 +27,18 @@ public class DeviceJob extends BaseEntity {
 
     @OneToOne(targetEntity = Device.class, fetch = FetchType.LAZY)
     private Device device;
+
+    @ManyToOne(targetEntity = AppUser.class, fetch = FetchType.LAZY)
+
+    private AppUser appUser;
+
+    public AppUser getAppUser() {
+        return appUser;
+    }
+
+    public void setAppUser(AppUser appUser) {
+        this.appUser = appUser;
+    }
 
     public String getJobName() {
         return jobName;

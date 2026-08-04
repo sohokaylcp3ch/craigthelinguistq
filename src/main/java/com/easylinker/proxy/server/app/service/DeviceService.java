@@ -92,8 +92,6 @@ public class DeviceService {
         pageJson.put("isLast", dataPage.isLast());
         pageJson.put("isFirst", dataPage.isFirst());
         pageJson.put("totalPages", dataPage.getTotalPages());
-
-
         pageJson.put("totalElements", dataPage.getTotalElements());
 
         for (Device device : dataPage.getContent()) {
