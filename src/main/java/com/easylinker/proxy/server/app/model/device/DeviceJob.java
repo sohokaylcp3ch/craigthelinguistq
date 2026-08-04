@@ -13,7 +13,6 @@ public class DeviceJob extends BaseEntity {
     private String jobName = "DEVICE_SCHEDULE_JOB";    //任务名
     private String jobGroup = "JOB_GROUP";    //任务组
     private String cronExpression;    //cron表达式
-    private String jobStatus = "STOP";    //状态
     private String jobDescription = "DEVICE_JOB";    //描述
     private String jobJson;
 
@@ -62,14 +61,6 @@ public class DeviceJob extends BaseEntity {
 
     public void setCronExpression(String cronExpression) {
         this.cronExpression = cronExpression;
-    }
-
-    public String getJobStatus() {
-        return jobStatus;
-    }
-
-    public void setJobStatus(String jobStatus) {
-        this.jobStatus = jobStatus;
     }
 
     public String getJobDescription() {

@@ -12,11 +12,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.Serializable;
 import java.util.Base64;
 import java.util.Date;
 
 @Component
-public class HttpTool {
+public class HttpTool implements Serializable{
     private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private OkHttpClient client = new OkHttpClient();
 

@@ -413,7 +413,6 @@ public class UserController {
      */
     @RequestMapping(value = "/stopJob/{deviceId}", method = RequestMethod.GET)
     public JSONObject stopJob(@PathVariable("deviceId") Long deviceId) {
-        //scheduler.deleteJob(JobKey.jobKey(device.getOpenId(), "JOB_GROUP"));
         Device device = deviceService.findADevice(deviceId);
         //惯例,检查设备是否存在
         if (device != null) {
@@ -424,10 +423,6 @@ public class UserController {
 
             } else {
                 try {
-//通过ID来删除
-//                    System.out.println("删除JOB:" + deviceJob.getId().toString() + "--" + deviceJob.getJobGroup());
-//                    scheduler.deleteJob(JobKey.jobKey(deviceJob.getId().toString(), "JOB_GROUP"));
-//                    deviceJobService.delete(deviceJob);
                     deleteJob(deviceJob);
                     return ReturnResult.returnTipMessage(1, "设备任务取消成功!");
                 } catch (Exception e) {
@@ -464,10 +459,8 @@ public class UserController {
 
                 .withIdentity(scheduleJob.getId().toString(), scheduleJob.getJobGroup()).build();
         jobDetail.getJobDataMap().putAsString("deviceId", scheduleJob.getDevice().getId());
-
         //表达式调度构建器(即任务执行的时间)
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(scheduleJob.getCronExpression());
-
 
         //按新的cronExpression表达式构建一个新的trigger
         CronTrigger trigger = TriggerBuilder.newTrigger()
@@ -476,8 +469,9 @@ public class UserController {
         trigger.getJobDataMap().put("cron", scheduleJob.getCronExpression());
         trigger.getJobDataMap().put("jobJson", scheduleJob.getJobJson());
         trigger.getJobDataMap().put("apiHost", apiHost);
+
         scheduler.scheduleJob(jobDetail, trigger);
-        logger.info("添加新JOB:" + scheduleJob.getId().toString() + "--" + scheduleJob.getJobGroup());
+        logger.info("添加新JOB:" + scheduleJob.getId().toString());
 
     }
 
@@ -492,7 +486,7 @@ public class UserController {
 
         scheduler.deleteJob(JobKey.jobKey(deviceJob.getId().toString(), "JOB_GROUP"));
         deviceJobService.delete(deviceJob);
-        logger.info("删除JOB:" + deviceJob.getId().toString() + "--" + deviceJob.getJobGroup());
+        logger.info("删除JOB:" + deviceJob.getId().toString());
     }
 
 

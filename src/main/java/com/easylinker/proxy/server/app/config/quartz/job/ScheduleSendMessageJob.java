@@ -5,11 +5,17 @@ import com.easylinker.proxy.server.app.config.quartz.pojo.BaseJob;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.utils.HttpTool;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Base64;
 
 /**
  * 定时任务具体业务接口
@@ -20,22 +26,8 @@ import org.springframework.stereotype.Component;
  * 下面可以直发送了
  */
 @DisallowConcurrentExecution
-@Component
 public class ScheduleSendMessageJob extends BaseJob {
 
-    HttpTool httpTool;
-    String apiHost;
-
-    ScheduleSendMessageJob() {
-        //默认构造方法
-
-    }
-
-    ScheduleSendMessageJob(String apiHost, HttpTool httpTool) {
-        this.httpTool = httpTool;
-        this.apiHost = apiHost;
-
-    }
 
 
     public void action(JobExecutionContext context) {
@@ -54,7 +46,7 @@ public class ScheduleSendMessageJob extends BaseJob {
         try {
             //给设备发送数据
 
-            //httpTool.postWithAuthorization(context.getTrigger().getJobDataMap().getString("apiHost") + "mqtt/publish", cmd);
+            postWithAuthorization(context.getTrigger().getJobDataMap().getString("apiHost") + "mqtt/publish", cmd);
 
             System.out.println(cmd.toJSONString());
         } catch (Exception e) {
