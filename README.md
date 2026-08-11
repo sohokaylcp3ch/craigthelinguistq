@@ -1,6 +1,13 @@
 # EasyLinker-部署和使用文档
-## https://www.oschina.net/p/easylinker
-## EasylinkerV2.1地址:http://www.easylinker.xyz/ (这个是项目地址，同步更新)
-# 教程:http://www.easylinker.xyz/
+## http://www.easylinker.xyz
+# 教程
+## http://www.easylinker.xyz
 # QQ群:475512169
 # QQ群人数多,欢迎加入讨论
+# 开源协议:本项目遵循MIT开源协议
+```
+Copyright (C) <2018> <easyIot>
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
