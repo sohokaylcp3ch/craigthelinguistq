@@ -98,9 +98,11 @@ public class UserController {
         String comment = body.getString("comment");
         if (groupName == null || comment == null) {
             return ReturnResult.returnTipMessage(0, "请求参数不完整!");
-        } else if (!groupName.matches(REG_1_Z)) {
-            return ReturnResult.returnTipMessage(0, "设备组必须用英文或者数字组合且不下6位!");
-        } else if (deviceGroupService.getADeviceGroupByName(groupName) == null) {
+        }
+//        else if (!groupName.matches(REG_1_Z)) {
+//            return ReturnResult.returnTipMessage(0, "设备组必须用英文或者数字组合且不下6位!");
+//        }
+        else if (deviceGroupService.getADeviceGroupByName(groupName) == null) {
             AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             DeviceGroup deviceGroup = new DeviceGroup();
             deviceGroup.setGroupName(groupName);
