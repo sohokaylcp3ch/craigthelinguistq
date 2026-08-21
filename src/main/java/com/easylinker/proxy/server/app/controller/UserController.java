@@ -102,6 +102,7 @@ public class UserController {
 //        else if (!groupName.matches(REG_1_Z)) {
 //            return ReturnResult.returnTipMessage(0, "设备组必须用英文或者数字组合且不下6位!");
 //        }
+
         else if (deviceGroupService.getADeviceGroupByName(groupName) == null) {
             AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             DeviceGroup deviceGroup = new DeviceGroup();
