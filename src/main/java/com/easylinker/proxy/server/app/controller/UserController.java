@@ -84,6 +84,54 @@ public class UserController {
         }
     }
 
+
+    /**
+     * 把单个设备绑定到用户默认组
+     *
+     * @param deviceId
+     * @return
+     */
+
+    @RequestMapping(value = "/bindToDefaultGroup/{deviceId}")
+    public JSONObject bindToDefaultGroup(@PathVariable Long deviceId) {
+        Device device = deviceService.findADevice(deviceId);
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (device != null) {
+
+            if (device.getAppUser() != null) {
+                return ReturnResult.returnTipMessage(0, "设备已经绑定到其他用户!");
+            }
+
+
+            DeviceGroup defaultGroup = deviceGroupService.findADeviceGroupById(appUser.getId());
+            if (defaultGroup != null) {
+                device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + defaultGroup.getId() + "/" + device.getId());
+                device.setDeviceGroup(defaultGroup);
+                deviceGroupService.save(defaultGroup);
+                return ReturnResult.returnTipMessage(1, "绑定成功!");
+            } else {
+                DeviceGroup deviceGroup = new DeviceGroup();
+                deviceGroup.setAppUser(appUser);
+                deviceGroup.setId(appUser.getId());
+                deviceGroup.setGroupName("默认分组");
+                deviceGroup.setComment("系统默认分组");
+                //增加默认分组  规则是:ID和UserId相等的分组
+                deviceGroupService.save(deviceGroup);
+                device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
+                device.setDeviceGroup(deviceGroup);
+                deviceService.save(device);
+                return ReturnResult.returnTipMessage(1, "绑定成功!");
+            }
+
+
+        } else {
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+        }
+
+
+    }
+
     /**
      * 增加一个分组
      * 参数
@@ -439,6 +487,13 @@ public class UserController {
 
     }
 
+    /**
+     * 查询用户所有的定时任务
+     *
+     * @param page
+     * @param size
+     * @return
+     */
 
     @RequestMapping(value = "/getAllJobByAppUser/{page}/{size}", method = RequestMethod.GET)
 
@@ -461,7 +516,8 @@ public class UserController {
         JobDetail jobDetail = JobBuilder.newJob(ScheduleSendMessageJob.class)
 
                 .withIdentity(scheduleJob.getId().toString(), scheduleJob.getJobGroup()).build();
-        jobDetail.getJobDataMap().putAsString("deviceId", scheduleJob.getDevice().getId());
+        jobDetail.getJobDataMap().put("topic", scheduleJob.getDevice().getTopic().replace("IN", "OUT"));
+
         //表达式调度构建器(即任务执行的时间)
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(scheduleJob.getCronExpression());
 

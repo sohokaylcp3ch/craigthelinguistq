@@ -84,9 +84,9 @@ public class HTTPApiController {
                 }
                 cmd.put("qos", 1);
                 cmd.put("retain", false);
-                cmd.put("client_id", "easylinker_server");
+                cmd.put("client_id", "http_api_proxy");
                 try {
-                    System.out.println(cmd);
+                    System.out.println("HTTP API发送的消息:" + cmd);
                     httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd);
                 } catch (Exception e) {
                     return ReturnResult.returnTipMessage(0, "发送失败!");
@@ -118,7 +118,7 @@ public class HTTPApiController {
         }
         cmd.put("qos", 1);
         cmd.put("retain", false);
-        cmd.put("client_id", "easylinker_server");
+        cmd.put("client_id", "http_api_proxy");
         try {
             httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd);
             //System.out.println("广播消息:" + httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd).toJSONString() + cmd);
