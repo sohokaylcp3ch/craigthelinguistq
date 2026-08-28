@@ -4,13 +4,15 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.service.DeviceService;
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -19,8 +21,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -82,7 +84,7 @@ public class EasyLinkerApplication implements CommandLineRunner {
             JSONObject emqInfoJson = restTemplate.getForObject(apiHost + "management/nodes/" + emqNodeName, JSONObject.class);
             logger.info("┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
             logger.info("┃EMQ版本：" + emqInfoJson.getJSONObject("result").getString("version"));
-            logger.info("┃EMQ描述：" + emqInfoJson.getJSONObject("result").getString("sysdescr")) ;
+            logger.info("┃EMQ描述：" + emqInfoJson.getJSONObject("result").getString("sysdescr"));
             logger.info("┃EMQ开启时间：" + emqInfoJson.getJSONObject("result").getString("uptime"));
             logger.info("┃状态：" + emqInfoJson.getJSONObject("result").getString("node_status"));
             logger.info("┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
@@ -98,10 +100,26 @@ public class EasyLinkerApplication implements CommandLineRunner {
      * 检查时候存在EasyLinker关闭了但是EMQ上面任然连接了设备导致没有及时刷新数据的情况
      * 作用是更新EasyLinker掉线后来连接的设备的状态
      */
+    HttpHeaders createHeaders(String username, String password) {
+        return new HttpHeaders() {{
+            String auth = username + ":" + password;
+            byte[] encodedAuth = Base64.encodeBase64(
+                    auth.getBytes(Charset.forName("UTF-8")));
+
+            String authHeader = "Basic " + new String(encodedAuth);
+            set("Authorization", authHeader);
+        }};
+    }
 
     public void checkOnlineDevice() {
         try {
+//            JSONObject clientsJson = restTemplate.exchange (apiHost + "nodes/" + emqNodeName + "/clients",
+//                    HttpMethod.POST,
+//                    new HttpEntity<T>(createHeaders(username, password)),
+//                    JSONObject.class);
             JSONObject clientsJson = restTemplate.getForObject(apiHost + "nodes/" + emqNodeName + "/clients", JSONObject.class);
+
+
             JSONArray clientsArray = clientsJson.getJSONObject("result").getJSONArray("objects");
             if (clientsArray.size() > 4) {
                 logger.info("开始检测脱离EMQ的设备,开始恢复状态!");
@@ -127,7 +145,7 @@ public class EasyLinkerApplication implements CommandLineRunner {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("恢复设备状态的时候出现问题!请重启EasyLinker!",e.getLocalizedMessage());
+            logger.error("恢复设备状态的时候出现问题!请重启EasyLinker!", e.getLocalizedMessage());
         }
 
     }
@@ -160,7 +178,7 @@ public class EasyLinkerApplication implements CommandLineRunner {
                         if (device.isOnline()) {
                             device.setOnline(false);
                             deviceService.save(device);
-                            logger.info("设备[{}]脱离状态，恢复完毕",device.getClientId());
+                            logger.info("设备[{}]脱离状态，恢复完毕", device.getClientId());
                         }
                     }
                 }
@@ -169,7 +187,7 @@ public class EasyLinkerApplication implements CommandLineRunner {
             logger.info("恢复状态完毕!");
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("恢复EMQ状态的时候出现问题!请重启EasyLinker!",e.getLocalizedMessage());
+            logger.error("恢复EMQ状态的时候出现问题!请重启EasyLinker!", e.getLocalizedMessage());
         }
 
     }

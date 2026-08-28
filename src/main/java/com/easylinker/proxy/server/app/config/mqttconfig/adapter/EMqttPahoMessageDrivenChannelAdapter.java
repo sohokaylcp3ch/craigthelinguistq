@@ -271,7 +271,7 @@ public class EMqttPahoMessageDrivenChannelAdapter extends AbstractMqttMessageDri
                         /**
                          * 尝试重新连接引发的异常
                          */
-                        EMqttPahoMessageDrivenChannelAdapter.this.logger.error("EMQ配置错误，导致EasyLinker无法连接，强检查配置！");
+                        EMqttPahoMessageDrivenChannelAdapter.this.logger.error("EMQ配置错误，导致EasyLinker无法连接，检查配置！");
                         //EMqttPahoMessageDrivenChannelAdapter.this.logger.error("Exception while connecting and subscribing", var4);
                         EMqttPahoMessageDrivenChannelAdapter.this.scheduleReconnect();
                     }

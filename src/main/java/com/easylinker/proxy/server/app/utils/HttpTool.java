@@ -58,12 +58,6 @@ public class HttpTool implements Serializable{
     }
 
 
-    @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.basicAuthorization(username, password)
-                .setConnectTimeout(1000)
-                .setReadTimeout(1000)
-                .build();
-    }
+
 }
 

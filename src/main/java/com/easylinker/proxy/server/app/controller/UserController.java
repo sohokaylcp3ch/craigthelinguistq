@@ -106,6 +106,7 @@ public class UserController {
 
             DeviceGroup defaultGroup = deviceGroupService.findADeviceGroupById(appUser.getId());
             if (defaultGroup != null) {
+                device.setAppUser(appUser);
                 device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + defaultGroup.getId() + "/" + device.getId());
                 device.setDeviceGroup(defaultGroup);
                 deviceGroupService.save(defaultGroup);
