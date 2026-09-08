@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -53,7 +54,7 @@ public class CustomUsernamePasswordFilter extends UsernamePasswordAuthentication
         Authentication authentication = null;
 
         if (true && !request.getMethod().equals("POST")) {
-            throw new AuthenticationServiceException("Only support post!");
+            throw new AuthenticationServiceException("Only support http post method!");
         } else {
 
             try {
@@ -62,23 +63,24 @@ public class CustomUsernamePasswordFilter extends UsernamePasswordAuthentication
                 authentication = this.getAuthenticationManager().authenticate(authRequest);
 
             } catch (Exception e) {
+                logPrinter.log("登陆", "登录失败", loginParam);
+                JSONObject resultJson = new JSONObject();
+                resultJson.put("state", 0);
                 if (e instanceof BadCredentialsException) {
-                    logPrinter.log("登陆", "登录失败", loginParam);
-                    JSONObject resultJson = new JSONObject();
-                    resultJson.put("state", 0);
                     resultJson.put("message", "登录失败!用户不存在!");
+                } else if (e instanceof DisabledException) {
+                    resultJson.put("message", "登录失败!用户没有激活!");
+                }
+
+                try {
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(resultJson.toJSONString());
+                    response.getWriter().flush();
+                } catch (IOException e1) {
+                    logger.error("输出流写入JSON失败!");
+                    //logPrinter.log("向输出流写入数据的时候", "写入失败", "HttpResponse");
 
-                    try {
-                        response.getWriter().write(resultJson.toJSONString());
-                        response.getWriter().flush();
-                    } catch (IOException e1) {
-                        logger.error("输出流写入JSON失败!");
-                        logPrinter.log("向输出流写入数据的时候", "写入失败", "HttpResponse");
-
-
-                    }
                 }
 
 

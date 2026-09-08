@@ -94,8 +94,8 @@ if __name__ == "__main__":
     sdk.start()
     # 数据上传
     while 1:
-        time.sleep(6)
-        # echo表示 给web控制台的web socket监视器返回一个值
+        time.sleep(10)
+        # echo表示 给web控制台返回一个值
         sdk.echo("Echo text")
         # publish 发布数据
         sdk.publish(data={"k": "2"})
