@@ -11,6 +11,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -70,6 +71,12 @@ public class CustomUsernamePasswordFilter extends UsernamePasswordAuthentication
                     resultJson.put("message", "登录失败!用户不存在!");
                 } else if (e instanceof DisabledException) {
                     resultJson.put("message", "登录失败!用户没有激活!");
+                } else if (e instanceof UsernameNotFoundException) {
+                    resultJson.put("message", "登录失败!用户不存在!");
+                } else if (e instanceof BadCredentialsException) {
+                    resultJson.put("message", "登录失败!密码错误!");
+                } else {
+                    resultJson.put("message", "登录失败!");
                 }
 
                 try {
