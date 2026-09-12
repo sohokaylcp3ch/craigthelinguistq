@@ -31,3 +31,11 @@ Jsonobject json=UserService.getById(0)
 此时是JSON数据,可以直接传给前端.
 
 ```
+## 4 代码目录结构
+```$xslt
+1.main:该包下是全部源码
+2.test：test
+3.resource：资源
+该目录下的文件不要删除
+4.etc:一些附带的资源文件，供参考
+```
