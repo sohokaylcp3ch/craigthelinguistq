@@ -46,7 +46,7 @@ public class ScheduleSendMessageJob extends BaseJob {
 
             System.out.println("JSON消息内容:"+cmd.toJSONString());
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("定时消息出错了!" + e.getMessage());
 
 

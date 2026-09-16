@@ -2,6 +2,7 @@ package com.easylinker.proxy.server.app.model.device;
 
 import com.easylinker.proxy.server.app.model.base.BaseEntity;
 import com.easylinker.proxy.server.app.model.user.AppUser;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -34,9 +35,9 @@ public class DeviceGroup extends BaseEntity {
     private String groupName;
     private String comment;
     @ManyToOne(targetEntity = AppUser.class, fetch = FetchType.LAZY)
-    @NotFound(action= NotFoundAction.IGNORE)
+    @NotFound(action = NotFoundAction.IGNORE)
     private AppUser appUser;
-
+    @Cascade({org.hibernate.annotations.CascadeType.DELETE})
     @OneToMany(targetEntity = Device.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Device> deviceList;
 
