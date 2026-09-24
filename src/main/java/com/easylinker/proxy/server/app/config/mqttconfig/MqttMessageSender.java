@@ -50,4 +50,21 @@ public class MqttMessageSender {
         messageJson.put("client_id", "SERVER_PROXY");
         httpTool.postWithAuthorization(apiHost + "mqtt/publish", messageJson);
     }
+
+    /**
+     * 发送报警信息
+     * @param topic
+     * @param message
+     * @throws Exception
+     */
+    public void sendWarningMessage(String topic,JSONObject message) throws Exception {
+        JSONObject messageJson = new JSONObject();
+        messageJson.put("topic", "WARNING"+topic.substring(2));
+        messageJson.put("payload", message.toJSONString());
+        messageJson.put("retain", false);
+        messageJson.put("qos", 1);
+        messageJson.put("client_id", "SERVER_PROXY");
+        httpTool.postWithAuthorization(apiHost + "mqtt/publish", messageJson);
+    }
+
 }

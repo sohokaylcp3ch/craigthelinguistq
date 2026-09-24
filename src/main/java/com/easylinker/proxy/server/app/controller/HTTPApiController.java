@@ -80,14 +80,21 @@ public class HTTPApiController {
                     cmd.put("payload", payload.toJSONString());//这里注意：payload必须是String类型的
                 } catch (Exception e) {
                     return ReturnResult.returnTipMessage(0, "消息格式必须是JSON!");
-
                 }
                 cmd.put("qos", 1);
                 cmd.put("retain", false);
-                cmd.put("client_id", "http_api_proxy");
+                cmd.put("client_id", "easylinker_server");
                 try {
-                    System.out.println("HTTP API发送的消息:" + cmd);
+                    //System.out.println(cmd);
                     httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd);
+
+                    //保存记录
+                    DeviceData deviceData = new DeviceData();
+                    deviceData.setDevice(device);
+                    deviceData.setData(payload.toString());
+                    deviceData.setType("OUT");
+                    deviceDataService.save(deviceData);
+
                 } catch (Exception e) {
                     return ReturnResult.returnTipMessage(0, "发送失败!");
                 }
@@ -118,7 +125,7 @@ public class HTTPApiController {
         }
         cmd.put("qos", 1);
         cmd.put("retain", false);
-        cmd.put("client_id", "http_api_proxy");
+        cmd.put("client_id", "easylinker_server");
         try {
             httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd);
             //System.out.println("广播消息:" + httpTool.postWithAuthorization(apiHost + "mqtt/publish", cmd).toJSONString() + cmd);

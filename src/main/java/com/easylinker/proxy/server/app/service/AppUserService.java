@@ -3,11 +3,15 @@ package com.easylinker.proxy.server.app.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.dao.AppUserRepository;
+import com.easylinker.proxy.server.app.dao.UserRoleRepository;
 import com.easylinker.proxy.server.app.model.user.AppUser;
+import com.easylinker.proxy.server.app.model.user.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
 
 import java.util.List;
 
@@ -16,6 +20,8 @@ public class AppUserService {
     @Autowired
     AppUserRepository appUserRepository;
 
+    @Autowired
+    UserRoleRepository userRoleRepository;
     /**
      * @param parameter 表示 UsernameOrEmailOrPhone，三种字段都可以登陆
      * @return 返回一个User Info
@@ -52,6 +58,7 @@ public class AppUserService {
             jsonObject.put("email", appUser.getEmail());
             jsonObject.put("phone", appUser.getPhone());
             jsonObject.put("avatar", appUser.getAvatar());
+            jsonObject.put("isEnable", appUser.isEnabled());
             data.add(jsonObject);
         }
         return data;
@@ -74,11 +81,21 @@ public class AppUserService {
         pageJson.put("isFirst", dataPage.isFirst());
         for (AppUser appUser : dataPage.getContent()) {
             JSONObject jsonObject = new JSONObject();
+            List<UserRole> list = userRoleRepository.findAllByAppUser(appUser);
+            ArrayList arrayList = new ArrayList();
+            for (UserRole userrole:list
+                 ) {
+                arrayList.add(userrole.getRole());
+            }
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.add(arrayList);
+            jsonObject.put("role",jsonArray);
             jsonObject.put("id", appUser.getId());
             jsonObject.put("avatar", appUser.getAvatar());
             jsonObject.put("username", appUser.getUsername());
             jsonObject.put("email", appUser.getEmail());
             jsonObject.put("phone", appUser.getPhone());
+            jsonObject.put("isEnable", appUser.isEnabled());
             data.add(jsonObject);
         }
         pageJson.put("data", data);

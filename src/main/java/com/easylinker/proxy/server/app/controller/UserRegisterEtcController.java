@@ -160,13 +160,13 @@ public class UserRegisterEtcController {
     /**
      * 激活用户
      *
-     * @param activeCode
-     * 默认可以是username  phone  email
+     * @param activeCode username 的Base64
      * @return
      */
     @RequestMapping("/activeUser/{activeCode}")
     public JSONObject activeUser(@PathVariable String activeCode) {
-        AppUser appUser = appUserService.getAAppUserWithParameter(activeCode);
+        String username = new String(Base64.getDecoder().decode(activeCode.getBytes()));
+        AppUser appUser = appUserService.getAAppUserByUsername(username);
         if (appUser == null) {
             return ReturnResult.returnTipMessage(0, "用户不存在!");
         } else {

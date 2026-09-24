@@ -118,7 +118,7 @@ public class DeviceGroupService {
         for (DeviceGroup group : page.getContent()) {
             JSONObject dataJson = new JSONObject();
             dataJson.put("id", group.getId());
-            dataJson.put("user", group.getAppUser().getId());
+            dataJson.put("user", group.getAppUser().getUsername());
             dataJson.put("name", group.getGroupName());
             dataJson.put("comment", group.getComment());
             data.add(dataJson);

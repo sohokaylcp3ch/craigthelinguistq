@@ -13,7 +13,6 @@ import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.endpoint.MessageProducerSupport;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
-import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
 import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 
 /**
@@ -38,8 +37,7 @@ public class MqttConfig {
     ClientCmdReplyMessageHandler clientCmdReplyMessageHandler;
     @Autowired
     RealTimeMessageHandler realTimeMessageHandler;
-    @Autowired
-    LocationMessageHandler locationMessageHandler;
+
 
     /**
      * mqtt 的工厂  用来创建mqtt连接
@@ -98,7 +96,7 @@ public class MqttConfig {
                 "MqttClientInMessageListenerInbound",
                 mqttClientFactory());
         //OUT/DEVICE/DEFAULT_USER/DEFAULT_GROUP/ID  为客户端SUB的TOPIC
-        adapter.addTopic("IN/DEVICE/+/+/#");//监控设备publish的消息
+        adapter.addTopic("IN/ECHO/+/+/#");//监控设备publish的消息
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
@@ -182,32 +180,5 @@ public class MqttConfig {
                 .get();
     }
 
-    /**
-     * 监听地理位置变化
-     *
-     */
-    @Bean("LocationMessageHandler")
-    public EMqttPahoMessageDrivenChannelAdapter getLocationMessageHandler() {
-        EMqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
-                "LocationMessageHandler",
-                mqttClientFactory());
-        adapter.addTopic("IN/LOCATION/#");
-        adapter.setCompletionTimeout(5000);
-        adapter.setConverter(new DefaultPahoMessageConverter());
-        adapter.setQos(1);
-        return adapter;
-    }
-
-    /**
-     *
-     * @return
-     */
-
-    @Bean("mqttLocationMessageInflow")
-    public IntegrationFlow mqttLocationMessageInflow() {
-        return IntegrationFlows.from(getLocationMessageHandler())
-                .handle(locationMessageHandler)
-                .get();
-    }
 
 }

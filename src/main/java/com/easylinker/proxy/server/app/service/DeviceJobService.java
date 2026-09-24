@@ -69,6 +69,7 @@ public class DeviceJobService {
             deviceJson.put("cron", deviceJob.getCronExpression());
             deviceJson.put("device", deviceJob.getDevice().getId());
             deviceJson.put("jobJson", deviceJob.getJobJson());
+            deviceJson.put("state",deviceJob.getState());
             data.add(deviceJson);
         }
 

@@ -2,19 +2,20 @@ package com.easylinker.proxy.server.app.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.easylinker.proxy.server.app.model.daily.DailyLog;
 import com.easylinker.proxy.server.app.model.device.Device;
+import com.easylinker.proxy.server.app.model.device.DeviceData;
 import com.easylinker.proxy.server.app.model.device.DeviceGroup;
 import com.easylinker.proxy.server.app.model.device.Location;
 import com.easylinker.proxy.server.app.model.user.AppUser;
+import com.easylinker.proxy.server.app.service.*;
 import com.easylinker.proxy.server.app.utils.Image2Base64Tool;
 import com.easylinker.proxy.server.app.utils.QRCodeGenerator;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
-import com.easylinker.proxy.server.app.service.AppUserService;
-import com.easylinker.proxy.server.app.service.DeviceGroupService;
-import com.easylinker.proxy.server.app.service.DeviceService;
-import com.easylinker.proxy.server.app.service.LocationService;
 import com.sun.javafx.geom.transform.BaseTransform;
 import io.netty.handler.codec.json.JsonObjectDecoder;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -39,7 +40,11 @@ public class AdminController {
     @Autowired
     DeviceGroupService deviceGroupService;
     @Autowired
+    DeviceDataService deviceDataService;
+    @Autowired
     AppUserService appUserService;
+    @Autowired
+    DailyLogService dailyLogService;
 
     /**
      * 管理员增加一个设备
@@ -48,6 +53,7 @@ public class AdminController {
      * @param deviceBody 包含设备信息的JSON
      * @return
      */
+
     @RequestMapping("/addADevice")
     public JSONObject addADevice(@RequestBody JSONObject deviceBody) {
         String deviceName = deviceBody.getString("deviceName");
@@ -70,7 +76,10 @@ public class AdminController {
         } else {
 
             Device device = new Device();
-
+            //DeviceGroup deviceGroup = new DeviceGroup();
+//            deviceGroup.setComment("默认分组");
+//            deviceGroup.setGroupName(groupName);
+//            deviceGroupService.save(deviceGroup);//保存分组
             device.setDeviceGroup(null);
             device.setAppUser(null);
             device.setLastActiveDate(new Date());
@@ -121,6 +130,11 @@ public class AdminController {
         } else if (!deviceNamePrefix.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备名称不下6位!");
         } else {
+//            //DeviceGroup deviceGroup = new DeviceGroup();
+//            deviceGroup.setAppUser(null);
+//            deviceGroup.setComment("默认分组");
+//            deviceGroup.setGroupName(groupName);
+//            deviceGroupService.save(deviceGroup);//所有新增加的设备，分组一样,保存分组
 
             for (int i = 0; i < deviceSum; i++) {
                 Location location = new Location();
@@ -131,7 +145,7 @@ public class AdminController {
                 Device device = new Device();
                 device.setDeviceGroup(null);
                 device.setLastActiveDate(new Date());
-                device.setDeviceName(deviceNamePrefix + "_" + i);
+                device.setDeviceName(deviceNamePrefix + "_Auto_" + i);
                 device.setDeviceDescribe("Product_" + i);
                 device.setClientId(device.getId().toString());
                 //设置ACL  默认值
@@ -273,9 +287,12 @@ public class AdminController {
      */
     @RequestMapping(value = "/getDeviceDetail/{deviceId}", method = RequestMethod.GET)
     public JSONObject getDeviceDetail(@PathVariable Long deviceId) {
-        return deviceService.getDeviceDetail(deviceId);
-
-
+        Device device = deviceService.findADevice(deviceId);
+        if (device != null) {
+            return ReturnResult.returnDataMessage(1, "查询成功!",deviceService.getDeviceDetail(deviceId));
+        } else {
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+        }
     }
 
 
@@ -309,15 +326,57 @@ public class AdminController {
         return ReturnResult.returnDataMessage(1, "查询成功!", data);
     }
 
-    /**
-     * 关键字搜索所有
-     */
-    @RequestMapping(method = RequestMethod.POST)
-    public JSONObject search(@RequestBody JSONObject keyWordsJson) {
-        if (keyWordsJson.getString("keyWords") != null) {
-            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.search(keyWordsJson.getString("keyWords")));
+
+    @RequestMapping(value = "/deleteGroup/{id}", method = RequestMethod.DELETE)
+    public JSONObject deleteGroup(@PathVariable("id") Long id) {
+        DeviceGroup deviceGroup=deviceGroupService.findADeviceGroupById(id);
+        if (deviceGroup != null) {
+            deviceGroupService.delete(deviceGroupService.findADeviceGroupById(id));
+            return ReturnResult.returnTipMessage(1, "群组删除成功!");
         } else {
-            return ReturnResult.returnTipMessage(0, "查询参数不完整!");
+            return ReturnResult.returnTipMessage(0, "该群组不存在!");
         }
     }
+    /**
+     * 关键字搜索
+     */
+    @RequestMapping(value = "/search/{keyWords}", method = RequestMethod.POST)
+    public JSONObject search(@PathVariable String keyWords) {
+
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.search(keyWords));
+    }
+
+
+
+    /////////////////LOG//////////////////
+
+    /**
+     * 分页查询用户日志
+     * @param page
+     * @param size
+     * @return
+     */
+    @RequestMapping(value = "/getAllDailyLogByPage/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllDailyLogByPage(@PathVariable int page, @PathVariable int size) {
+
+        return ReturnResult.returnDataMessage(1, "获取成功!", dailyLogService.getAllDailyLogByPage(
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
+
+    }
+
+
+    /**
+     * 分页查询用户日志
+     * @param page
+     * @param size
+     * @return
+     */
+    @RequestMapping(value = "/getAllDeviceDataByPage/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllDeviceDataByPage(@PathVariable int page, @PathVariable int size) {
+
+        return ReturnResult.returnDataMessage(1, "获取成功!", deviceDataService.getAllDeviceDataByPage(
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
+
+    }
+
 }

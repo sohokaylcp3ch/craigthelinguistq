@@ -15,6 +15,15 @@ public class DeviceJob extends BaseEntity {
     private String cronExpression;    //cron表达式
     private String jobDescription = "DEVICE_JOB";    //描述
     private String jobJson;
+    private String state;
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
 
     public String getJobJson() {
         return jobJson;

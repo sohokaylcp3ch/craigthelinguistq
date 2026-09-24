@@ -1,5 +1,8 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
+src/main/resources/application.properties
+src/main/resources/quartz.properties
+.DS_Store
 
 ### STS ###
 .apt_generated

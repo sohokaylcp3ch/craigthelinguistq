@@ -34,8 +34,8 @@ import java.util.Date;
  */
 public class UserController {
     private static final String REG_1_Z = "(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}";
-    Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     @Qualifier("Scheduler")
     Scheduler scheduler;
@@ -47,7 +47,6 @@ public class UserController {
     DeviceGroupService deviceGroupService;
     @Autowired
     LocationService locationService;
-
     @Autowired
     DeviceJobService deviceJobService;
 
@@ -55,6 +54,7 @@ public class UserController {
     HttpTool httpTool;
     @Value("${emq.api.host}")
     String apiHost;
+
 
     /**
      * 把单个设备绑定到用户
@@ -84,55 +84,6 @@ public class UserController {
         }
     }
 
-
-    /**
-     * 把单个设备绑定到用户默认组
-     *
-     * @param deviceId
-     * @return
-     */
-
-    @RequestMapping(value = "/bindToDefaultGroup/{deviceId}")
-    public JSONObject bindToDefaultGroup(@PathVariable Long deviceId) {
-        Device device = deviceService.findADevice(deviceId);
-        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (device != null) {
-
-            if (device.getAppUser() != null) {
-                return ReturnResult.returnTipMessage(0, "设备已经绑定到其他用户!");
-            }
-
-
-            DeviceGroup defaultGroup = deviceGroupService.findADeviceGroupById(appUser.getId());
-            if (defaultGroup != null) {
-                device.setAppUser(appUser);
-                device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + defaultGroup.getId() + "/" + device.getId());
-                device.setDeviceGroup(defaultGroup);
-                deviceGroupService.save(defaultGroup);
-                return ReturnResult.returnTipMessage(1, "绑定成功!");
-            } else {
-                DeviceGroup deviceGroup = new DeviceGroup();
-                deviceGroup.setAppUser(appUser);
-                deviceGroup.setId(appUser.getId());
-                deviceGroup.setGroupName("默认分组");
-                deviceGroup.setComment("系统默认分组");
-                //增加默认分组  规则是:ID和UserId相等的分组
-                deviceGroupService.save(deviceGroup);
-                device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
-                device.setDeviceGroup(deviceGroup);
-                deviceService.save(device);
-                return ReturnResult.returnTipMessage(1, "绑定成功!");
-            }
-
-
-        } else {
-            return ReturnResult.returnTipMessage(0, "设备不存在!");
-        }
-
-
-    }
-
     /**
      * 增加一个分组
      * 参数
@@ -147,12 +98,9 @@ public class UserController {
         String comment = body.getString("comment");
         if (groupName == null || comment == null) {
             return ReturnResult.returnTipMessage(0, "请求参数不完整!");
-        }
-//        else if (!groupName.matches(REG_1_Z)) {
-//            return ReturnResult.returnTipMessage(0, "设备组必须用英文或者数字组合且不下6位!");
-//        }
-
-        else if (deviceGroupService.getADeviceGroupByName(groupName) == null) {
+        } else if (!groupName.matches(REG_1_Z)) {
+            return ReturnResult.returnTipMessage(0, "设备组必须用英文或者数字组合且不下6位!");
+        } else if (deviceGroupService.getADeviceGroupByName(groupName) == null) {
             AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             DeviceGroup deviceGroup = new DeviceGroup();
             deviceGroup.setGroupName(groupName);
@@ -175,9 +123,13 @@ public class UserController {
     @RequestMapping(value = "/changeDeviceGroup", method = RequestMethod.POST)
     public JSONObject changeDeviceGroup(@RequestBody JSONObject body) {
         Long deviceId = body.getLongValue("deviceId");
+        String deviceName = body.getString("deviceName");
+        String deviceDescribe = body.getString("deviceDescribe");
+        String locationDescribe = body.getString("locationDescribe");
         String groupName = body.getString("groupName");
-        String comment = body.getString("comment");
-        if (groupName == null || comment == null || deviceId == null) {
+        System.out.println(groupName);
+        System.out.println(deviceId);
+        if (groupName == null || deviceId == null) {
             return ReturnResult.returnTipMessage(0, "请求参数不完整!");
         } else if (!groupName.matches(REG_1_Z)) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文或者数字组合且不下6位!");
@@ -186,20 +138,23 @@ public class UserController {
             Device device = deviceService.findADevice(deviceId);
             DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupByName(groupName);
             if (device != null) {
-                if (deviceGroup == null) {
+                if (deviceGroup != null) {
                     AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                     DeviceGroup group = new DeviceGroup();
+                    Location location = new Location();
                     group.setGroupName(groupName);
-                    group.setComment(comment);
                     group.setAppUser(appUser);
                     deviceGroupService.save(group);
                     device.setDeviceGroup(deviceGroup);
+                    location.setLocationDescribe(locationDescribe);
+                    device.setDeviceDescribe(deviceDescribe);
+                    device.setDeviceName(deviceName);
+                    device.setLocation(location);
+
                     deviceService.save(device);
                     return ReturnResult.returnTipMessage(1, "分配新分组成功!");
                 } else {
-                    device.setDeviceGroup(deviceGroup);
-                    deviceService.save(device);
-                    return ReturnResult.returnTipMessage(1, "分配已有的分组成功!");
+                    return ReturnResult.returnTipMessage(0, "分组不存在");
 
                 }
             } else {
@@ -303,11 +258,9 @@ public class UserController {
                 deviceGroup.setComment(comment);
                 deviceGroupService.save(deviceGroup);
                 return ReturnResult.returnTipMessage(1, "修改成功!");
-
             }
             {
                 return ReturnResult.returnTipMessage(0, "分组不存在!");
-
             }
 
         }
@@ -321,49 +274,52 @@ public class UserController {
      * @param deviceBody 包含设备信息的JSON
      * @return
      */
+
     @RequestMapping("/createADevice")
     public JSONObject createADevice(@RequestBody JSONObject deviceBody) {
         String deviceName = deviceBody.getString("deviceName");
         String deviceDescribe = deviceBody.getString("deviceDescribe");
-        String deviceNamePrefix = deviceBody.getString("deviceNamePrefix");
         String latitude = deviceBody.getString("latitude");
         String longitude = deviceBody.getString("longitude");
         String locationDescribe = deviceBody.getString("locationDescribe");
         Long groupId = deviceBody.getLong("groupId");
+        if (deviceDescribe == null || deviceName == null ||
 
+                groupId == null || latitude == null || longitude == null || locationDescribe == null
 
-        if (deviceDescribe == null || deviceName == null || groupId == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
-
+                ) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
         }
         DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupById(groupId.longValue());
         if (deviceGroup == null) {
             return ReturnResult.returnTipMessage(0, "分组不存在!");
         } else {
-
             AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Device device = new Device();
             device.setDeviceGroup(deviceGroup);
             device.setAppUser(appUser);
             device.setLastActiveDate(new Date());
-
-            device.setDeviceName(deviceNamePrefix + "_" + deviceName);
-
-
+            device.setDeviceName(deviceName);
             device.setDeviceDescribe(deviceDescribe);
             device.setClientId(device.getId().toString());
             device.setSecretKey(appUser.getId() + "-" + deviceGroup.getId() + "-" + device.getId());
-            //设置ACL
             device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
             device.setBarCode(Image2Base64Tool.imageToBase64String(QRCodeGenerator.string2BarCode(device.getId().toString())));
             device.setOpenId(device.getId().toString());
+
+            deviceService.save(device);
+
             Location location = new Location();
             location.setLatitude(latitude);
             location.setLongitude(longitude);
             location.setLocationDescribe(locationDescribe);
+            location.setDevice(device);
             locationService.save(location);//先保存位置
             device.setLocation(location);
+
             deviceService.save(device);
+
+
             return ReturnResult.returnTipMessage(1, "设备创建成功!");
         }
     }
@@ -390,17 +346,29 @@ public class UserController {
     /**
      * 当前用户关键字搜索
      */
-    @RequestMapping(value = "/searchByAppUser", method = RequestMethod.POST)
-    public JSONObject searchByAppUser(@RequestBody JSONObject keyWordsJson) {
+    @RequestMapping(value = "/searchByAppUser/{keyWords}", method = RequestMethod.POST)
+    public JSONObject searchByAppUser(@PathVariable String keyWords) {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (keyWordsJson.getString("keyWords") != null) {
-            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.searchByAppUser(keyWordsJson.getString("keyWords"), appUser));
+        if (keyWords != null) {
+            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.searchByAppUser(keyWords, appUser));
 
         } else {
             return ReturnResult.returnTipMessage(0, "查询参数不完整!");
         }
 
     }
+
+    /**
+     * 分页获取当前用户的在线设备信息
+     *
+     * @return
+     */
+    @RequestMapping(value = "/getAllOnlineDevicesByAppUser/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllOnlineDevicesByAppUser(@PathVariable int page, @PathVariable int size) {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getAllOnlineDevicesByAppUser(appUser, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
+    }
+
 
     /**
      * 添加一个定时任务
@@ -415,8 +383,9 @@ public class UserController {
 //        String description = jobBody.getString("description");
 //        String className = jobBody.getString("className");
         String cronExpression = jobBody.getString("cronExpression");
-        JSONObject jobJson = jobBody.getJSONObject("jobJson");
 
+        JSONObject jobJson = jobBody.getJSONObject("jobJson");
+        System.out.println(jobJson.toJSONString());
         Long deviceId = jobBody.getLongValue("deviceId");
 
         if (cronExpression == null || deviceId == null || jobJson == null) {
@@ -434,20 +403,18 @@ public class UserController {
                     scheduleJob.setCronExpression(cronExpression);
                     scheduleJob.setJobJson(jobJson.toJSONString());
                     scheduleJob.setAppUser(appUser);
+                    scheduleJob.setState("1");
                     try {
                         addJob(scheduleJob);
                         deviceJobService.save(scheduleJob);
-
                         return ReturnResult.returnTipMessage(1, "任务添加成功!");
                     } catch (Exception e) {
                         e.printStackTrace();
                         if (e instanceof RuntimeException) {
-
                             return ReturnResult.returnTipMessage(0, "CRON表达式格式错误!");
                         }
                         return ReturnResult.returnTipMessage(0, "任务添加失败!");
                     }
-
                 }
 
 
@@ -461,7 +428,7 @@ public class UserController {
 
 
     /**
-     * 添加一个定时任务
+     * 停止一个定时任务
      */
     @RequestMapping(value = "/stopJob/{deviceId}", method = RequestMethod.GET)
     public JSONObject stopJob(@PathVariable("deviceId") Long deviceId) {
@@ -472,11 +439,19 @@ public class UserController {
             DeviceJob deviceJob = deviceJobService.findAJobByDevice(device);
             if (deviceJob == null) {
                 return ReturnResult.returnTipMessage(0, "设备没有绑定任务!");
-
             } else {
                 try {
-                    deleteJob(deviceJob);
-                    return ReturnResult.returnTipMessage(1, "设备任务取消成功!");
+                    if (deviceJob.getState().equals("1")) {
+                        pauseJob(deviceJob);
+                        deviceJob.setState("0");
+                        deviceJobService.save(deviceJob);
+                        return ReturnResult.returnTipMessage(1, "设备任务取消成功!");
+                    } else {
+                        pauseJob(deviceJob);
+                        deviceJob.setState("1");
+                        deviceJobService.save(deviceJob);
+                        return ReturnResult.returnTipMessage(1, "设备任务恢复成功!");
+                    }
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     return ReturnResult.returnTipMessage(0, "设备任务取消失败!");
@@ -489,12 +464,40 @@ public class UserController {
     }
 
     /**
+     * 删除一个设备任务
+     */
+    @RequestMapping(value = "/deleteJob/{deviceId}", method = RequestMethod.DELETE)
+    public JSONObject deleteDeviceJob(@PathVariable("deviceId") Long id) {
+        Device device = deviceService.findADevice(id);
+        if (device != null) {
+            //检查是否该设备已经绑定了任务
+            DeviceJob deviceJob = deviceJobService.findAJobByDevice(device);
+            if (deviceJob == null) {
+                return ReturnResult.returnTipMessage(0, "设备没有绑定任务!");
+            } else
+                try {
+                    deleteJob(deviceJob);
+                    deviceJobService.delete(deviceJob);
+                    return ReturnResult.returnTipMessage(1, "设备任务删除成功!");
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    return ReturnResult.returnTipMessage(0, "设备任务取消失败!");
+                }
+        } else {
+            return ReturnResult.returnTipMessage(0, "设备不存在!");
+        }
+    }
+
+    /**
      * 查询用户所有的定时任务
+     * <p>
+     * 分页获取设备的报警信息
      *
      * @param page
      * @param size
      * @return
      */
+
 
     @RequestMapping(value = "/getAllJobByAppUser/{page}/{size}", method = RequestMethod.GET)
 
@@ -512,16 +515,12 @@ public class UserController {
      */
 
     public void addJob(DeviceJob scheduleJob) throws Exception {
-
         if (scheduler.isShutdown()) scheduler.start();
         JobDetail jobDetail = JobBuilder.newJob(ScheduleSendMessageJob.class)
-
                 .withIdentity(scheduleJob.getId().toString(), scheduleJob.getJobGroup()).build();
         jobDetail.getJobDataMap().put("topic", scheduleJob.getDevice().getTopic().replace("IN", "OUT"));
-
         //表达式调度构建器(即任务执行的时间)
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(scheduleJob.getCronExpression());
-
         //按新的cronExpression表达式构建一个新的trigger
         CronTrigger trigger = TriggerBuilder.newTrigger()
                 .withIdentity(scheduleJob.getId().toString(), scheduleJob.getJobGroup())
@@ -529,7 +528,7 @@ public class UserController {
         trigger.getJobDataMap().put("cron", scheduleJob.getCronExpression());
         trigger.getJobDataMap().put("jobJson", scheduleJob.getJobJson());
         trigger.getJobDataMap().put("apiHost", apiHost);
-
+        trigger.getJobDataMap().put("deviceId", scheduleJob.getDevice().getId());
         scheduler.scheduleJob(jobDetail, trigger);
         logger.info("添加新JOB:" + scheduleJob.getId().toString());
 
@@ -543,11 +542,53 @@ public class UserController {
      */
     public void deleteJob(DeviceJob deviceJob) throws Exception {
         //通过ID来删除
-
         scheduler.deleteJob(JobKey.jobKey(deviceJob.getId().toString(), "JOB_GROUP"));
-        deviceJobService.delete(deviceJob);
         logger.info("删除JOB:" + deviceJob.getId().toString());
     }
 
+    /**
+     * 暂停定时任务
+     *
+     * @param deviceJob
+     * @throws Exception
+     */
+    public void pauseJob(DeviceJob deviceJob) throws Exception {
+        //通过ID来暂停
+        if (deviceJob.getState().equals("0")) {
+            resumeJob(deviceJob);
+        } else {
+            scheduler.pauseJob(JobKey.jobKey(deviceJob.getId().toString(), "JOB_GROUP"));
+            logger.info("暂停JOB:" + deviceJob.getId().toString());
+        }
+    }
+
+    /**
+     * 恢复定时任务
+     *
+     * @param deviceJob
+     * @throws Exception
+     */
+    public void resumeJob(DeviceJob deviceJob) throws Exception {
+        //通过ID来恢复
+        scheduler.resumeJob(JobKey.jobKey(deviceJob.getId().toString(), "JOB_GROUP"));
+        logger.info("恢复JOB:" + deviceJob.getId().toString());
+    }
+
+    /**
+     * 根据设备ID  获取直播地址
+     * @param deviceId
+     * @param liveType
+     * @return
+     */
+    @RequestMapping(value = "/getLiveUrlByDevice/{deviceId}/{liveType}", method = RequestMethod.GET)
+    public JSONObject getLiveUrlByDevice(@PathVariable Long deviceId, @PathVariable String liveType) {
+        Device device = deviceService.findADevice(deviceId);
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (device != null && device.getAppUser().getId().longValue() == appUser.getId().longValue()) {
+            return ReturnResult.returnDataMessage(1, "获取成功!", deviceService.getLiveUrl(device.getSecretKey(), liveType));
+        }
+        return ReturnResult.returnTipMessage(0, "获取播放地址失败!");
+    }
 
 }
+

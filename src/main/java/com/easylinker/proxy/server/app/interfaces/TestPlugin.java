@@ -12,7 +12,7 @@ public class TestPlugin extends InterceptorPlugin {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //System.out.println(this.getClass().getName()+"插件开始作用");
+        System.out.println(this.getClass().getName()+"插件开始作用");
         return true;
     }
 

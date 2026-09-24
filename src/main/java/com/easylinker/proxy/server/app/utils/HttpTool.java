@@ -53,6 +53,7 @@ public class HttpTool implements Serializable{
                 .url(url)
                 .post(body)
                 .build();
+        System.out.println("手动"+data);
         return JSONObject.parseObject(client.newCall(request).execute().body().string());
 
     }

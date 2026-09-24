@@ -5,26 +5,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.constants.result.ReturnResult;
 import com.easylinker.proxy.server.app.model.user.AppUser;
-import com.easylinker.proxy.server.app.service.DeviceDataService;
-import com.easylinker.proxy.server.app.service.DeviceGroupService;
-import com.easylinker.proxy.server.app.service.DeviceOnAndOffLineLogService;
-import com.easylinker.proxy.server.app.service.DeviceService;
-import io.netty.handler.codec.json.JsonObjectDecoder;
+import com.easylinker.proxy.server.app.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 设备操作业务逻辑
  */
 @RestController
 @RequestMapping("/device")
+@PreAuthorize(value = "hasRole('ROLE_USER') OR hasRole('ROLE_ADMIN')")
 public class DeviceController {
     @Autowired
     DeviceService deviceService;
@@ -35,6 +30,7 @@ public class DeviceController {
 
     @Autowired
     DeviceOnAndOffLineLogService deviceOnAndOffLineLogService;
+
 
     /**
      * 获取单个设备的细节
@@ -112,9 +108,16 @@ public class DeviceController {
      */
     @RequestMapping(value = "/getAllLog/{page}/{size}", method = RequestMethod.GET)
     public JSONObject getAllLog(@PathVariable int page, @PathVariable int size) {
-        return ReturnResult.returnDataMessage(1, "查询成功!", deviceOnAndOffLineLogService.getAllLog(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
-
-
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        for (GrantedAuthority authority:appUser.getAuthorities()) {
+            if ("ROLE_ADMIN".equals(authority.getAuthority()))
+                return ReturnResult.returnDataMessage(1, "查询成功!", deviceOnAndOffLineLogService.getAllLog(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
+        }
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceOnAndOffLineLogService.getAllLogByUser(appUser,PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))));
     }
+
+
+
+
 
 }

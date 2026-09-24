@@ -4,6 +4,7 @@ import com.easylinker.proxy.server.app.config.quartz.pojo.BaseJob;
 import org.quartz.Scheduler;
 import org.quartz.ee.servlet.QuartzInitializerListener;
 import org.quartz.spi.JobFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,8 @@ import java.util.Properties;
  */
 @Configuration
 public class QuartzConfig {
-
+@Autowired
+QuartzJobFactory quartzJobFactory;
     /**
      * 配置一个JOB任务工厂
      * @return
@@ -64,7 +66,9 @@ public class QuartzConfig {
     @Bean(name="SchedulerFactory")
     public SchedulerFactoryBean schedulerFactoryBean() throws IOException {
         SchedulerFactoryBean factory = new SchedulerFactoryBean();
+        factory.setAutoStartup(true);
         factory.setQuartzProperties(quartzProperties());
+        factory.setJobFactory(quartzJobFactory);
         return factory;
     }
 

@@ -19,7 +19,7 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
 
 /**
- * 从客户端进来的新消息
+ * 从客户端ECHO进来的新消息
  */
 @Component
 public class InMessageHandler implements MessageHandler {
@@ -43,7 +43,7 @@ public class InMessageHandler implements MessageHandler {
     public void handleMessage(Message<?> message) throws MessagingException {
         String topic = message.getHeaders().get("mqtt_topic").toString();
         try {
-            if (topic.startsWith("IN/DEVICE/")) {
+            if (topic.startsWith("IN/ECHO/")) {
                 Long openId = Long.parseLong(topic.split("/")[4]);
                 JSONObject dataJson = JSONObject.parseObject(message.getPayload().toString());
                 Device device = deviceService.findADevice(openId);
@@ -56,10 +56,13 @@ public class InMessageHandler implements MessageHandler {
                          * 这里AudioData是自定义数据格式
                          * 数据全部进 DeviceData
                          */
+
                         DeviceData deviceData = new DeviceData();
                         deviceData.setDevice(device);
                         deviceData.setData(dataJson.toString());
+                        deviceData.setType("ECHO");
                         deviceDataService.save(deviceData);
+
                         logger.info("数据保存成功!");
                         JSONObject realTimeJson = new JSONObject();
                         realTimeJson.put("type", RealTimeType.DATA_RECEIVED);

@@ -8,6 +8,7 @@ import com.easylinker.proxy.server.app.dao.DeviceRepository;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceGroup;
 import com.easylinker.proxy.server.app.model.user.AppUser;
+import com.easylinker.proxy.server.app.utils.AliLiveUtil;
 import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,12 +25,11 @@ import java.util.List;
 @Service("DeviceService")
 public class DeviceService {
     @Autowired
-
     DeviceRepository deviceRepository;
 
-
     @Autowired
-    DeviceGroupRepository deviceGroupRepository;
+    AliLiveUtil aliLiveUtil;
+
 
     public void save(Device device) {
         deviceRepository.save(device);
@@ -73,6 +73,7 @@ public class DeviceService {
             locationJson.put("describe", device.getLocation().getLocationDescribe());
             deviceJson.put("location", locationJson);
             deviceJson.put("describe", device.getDeviceDescribe());
+
             data.add(deviceJson);
         }
         pageJson.put("data", data);
@@ -92,6 +93,8 @@ public class DeviceService {
         pageJson.put("isLast", dataPage.isLast());
         pageJson.put("isFirst", dataPage.isFirst());
         pageJson.put("totalPages", dataPage.getTotalPages());
+
+
         pageJson.put("totalElements", dataPage.getTotalElements());
 
         for (Device device : dataPage.getContent()) {
@@ -132,9 +135,15 @@ public class DeviceService {
             JSONObject deviceJson = new JSONObject();
             if (device.getAppUser() == null) {
                 deviceJson.put("isBind", false);
+
             } else {
+                deviceJson.put("groupName", device.getDeviceGroup().getGroupName());
+                deviceJson.put("groupId", device.getDeviceGroup().getId());
+                deviceJson.put("userName", device.getAppUser().getUsername());
+                deviceJson.put("userID", device.getAppUser().getId());
                 deviceJson.put("isBind", true);
             }
+
             deviceJson.put("id", device.getId());
             deviceJson.put("key", device.getSecretKey());
             deviceJson.put("isOnline", device.isOnline());
@@ -262,14 +271,18 @@ public class DeviceService {
             deviceJson.put("openId", device.getOpenId());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("describe", device.getDeviceDescribe());
+            deviceJson.put("groupName", device.getDeviceGroup().getGroupName());
+            deviceJson.put("groupId", device.getDeviceGroup().getId());
+            deviceJson.put("userName", device.getAppUser().getUsername());
+            deviceJson.put("userID", device.getAppUser().getId());
             /**
              * 地理位置
              */
 
             JSONObject locationJson = new JSONObject();
-            locationJson.put("describe", device.getLocation().getLocationDescribe());
             locationJson.put("latitude", device.getLocation().getLatitude());
             locationJson.put("longitude", device.getLocation().getLongitude());
+            locationJson.put("describe", device.getLocation().getLocationDescribe());
             deviceJson.put("location", locationJson);
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             data.add(deviceJson);
@@ -278,17 +291,13 @@ public class DeviceService {
         return data;
     }
 
-
-
-
-
     /**
      * 当前用户关键字搜索
      *
      * @return
      */
-    public JSONArray searchByAppUser(String keyWords,AppUser appUser) {
-        List<Device> deviceList = deviceRepository.searchDeviceByAppUser(keyWords,appUser);
+    public JSONArray searchByAppUser(String keyWords, AppUser appUser) {
+        List<Device> deviceList = deviceRepository.searchDeviceByAppUser(keyWords, appUser);
         JSONArray data = new JSONArray();
         for (Device device : deviceList) {
             JSONObject deviceJson = new JSONObject();
@@ -315,5 +324,64 @@ public class DeviceService {
 
         return data;
     }
+
+
+    public JSONObject getAllOnlineDevicesByAppUser(AppUser appUser, Pageable pageable) {
+        JSONArray data = new JSONArray();
+        JSONArray liveData = new JSONArray();
+        JSONObject pageJson = new JSONObject();
+        Page<Device> dataPage = deviceRepository.findAllByAppUserAndIsOnline(appUser, true, pageable);
+
+        pageJson.put("page", dataPage.getNumber());
+        pageJson.put("totalElements", dataPage.getTotalElements());
+        pageJson.put("totalPages", dataPage.getTotalPages());
+        pageJson.put("size", dataPage.getSize());
+        pageJson.put("isLast", dataPage.isLast());
+        pageJson.put("isFirst", dataPage.isFirst());
+
+        for (Device device : dataPage.getContent()) {
+            JSONObject deviceJson = new JSONObject();
+
+//            //Live URL
+//            JSONObject liveJson = new JSONObject();
+//            liveJson.put("liveUrl", aliLiveUtil.getLiveUrl(device.getSecretKey(), "flv"));
+//            liveJson.put("id", device.getId());
+//            liveJson.put("groupId", device.getDeviceGroup().getId());
+//            liveJson.put("name", device.getDeviceName());
+//            liveData.add(liveJson);
+            //设备信息
+            deviceJson.put("id", device.getId());
+            deviceJson.put("groupId", device.getDeviceGroup().getId());
+            deviceJson.put("groupName", device.getDeviceGroup().getGroupName());
+            deviceJson.put("name", device.getDeviceName());
+            deviceJson.put("barCode", device.getBarCode());
+            deviceJson.put("lastActiveDate", device.getLastActiveDate());
+            //deviceJson.put("value", "loading...");
+            JSONObject locationJson = new JSONObject();
+            locationJson.put("latitude", device.getLocation().getLatitude());
+            locationJson.put("longitude", device.getLocation().getLongitude());
+            locationJson.put("describe", device.getLocation().getLocationDescribe());
+            deviceJson.put("location", locationJson);
+            deviceJson.put("describe", device.getDeviceDescribe());
+
+            data.add(deviceJson);
+        }
+        pageJson.put("data", data);
+        pageJson.put("liveData", liveData);
+        return pageJson;
+
+    }
+
+    /**
+     * 获取设备直播链接
+     *
+     * @return
+     */
+    public JSONObject getLiveUrl(String deviceKey, String type) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("liveUrl", aliLiveUtil.getLiveUrl(deviceKey, type));
+        return jsonObject;
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package com.easylinker.proxy.server.app.config.quartz.pojo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.easylinker.proxy.server.app.service.DeviceService;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -10,7 +11,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.Base64;
@@ -19,7 +22,11 @@ import java.util.Properties;
 /**
  * job父类，包含一个抽象函方法，将实现推迟到具体的子类
  */
+@Component
 public abstract class BaseJob implements Job, Serializable {
+    @Autowired
+    DeviceService deviceService;
+
     private OkHttpClient client = new OkHttpClient();
 
     /**
@@ -30,6 +37,7 @@ public abstract class BaseJob implements Job, Serializable {
      * @return
      */
     public JSONObject postWithAuthorization(String url, JSONObject data) throws Exception {
+
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), data.toJSONString());
         Properties properties = new Properties();
         properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("application.properties"));
@@ -42,7 +50,9 @@ public abstract class BaseJob implements Job, Serializable {
                 .url(url)
                 .post(body)
                 .build();
+        System.out.println("自动"+data);
         return JSONObject.parseObject(client.newCall(request).execute().body().string());
+
 
     }
 
@@ -61,7 +71,4 @@ public abstract class BaseJob implements Job, Serializable {
     public void execute(JobExecutionContext context) {
         this.action(context);
     }
-
-
-
 }

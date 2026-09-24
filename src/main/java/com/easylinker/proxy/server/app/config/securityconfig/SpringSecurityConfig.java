@@ -23,7 +23,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
  */
 @Configuration
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
-
     @Autowired
     AppUserDetailService appUserDetailService;
     @Autowired
@@ -74,7 +73,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/userLogin",//登陆
                         "/user/register",//注册
 
-                        "/user/activeUser/**"//激活
+
+                        "/user/activeUser/*"//激活
                 )
                 .permitAll();
 
@@ -86,7 +86,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutUrl("/logOut")
                 .and().rememberMe().alwaysRemember(true)
                 // 配置Cookie过期时间
-                .tokenValiditySeconds(2952000)
+                .tokenValiditySeconds(99999999)
                 // 配置UserDetailsService
                 .and().exceptionHandling()
                 .authenticationEntryPoint(anonymousHandler)

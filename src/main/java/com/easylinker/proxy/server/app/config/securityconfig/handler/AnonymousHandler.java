@@ -15,7 +15,7 @@ public class AnonymousHandler implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse httpServletResponse, AuthenticationException authException) throws IOException, ServletException {
 
         JSONObject returnJson = new JSONObject();
-        returnJson.put("state", 0);
+        returnJson.put("state", 2);
         returnJson.put("message", "只有经过登陆认证成功才能访问!");
         httpServletResponse.setContentType("application/json");
         httpServletResponse.setCharacterEncoding("UTF-8");

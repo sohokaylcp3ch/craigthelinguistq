@@ -14,7 +14,7 @@ public class DeviceData extends BaseEntity {
     private String data;
     @ManyToOne(targetEntity = Device.class, fetch = FetchType.LAZY)
     private Device device;
-
+    private String type;
 
     public String getData() {
         return data;
@@ -30,5 +30,13 @@ public class DeviceData extends BaseEntity {
 
     public void setDevice(Device device) {
         this.device = device;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
