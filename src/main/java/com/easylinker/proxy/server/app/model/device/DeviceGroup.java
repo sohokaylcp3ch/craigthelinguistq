@@ -40,7 +40,7 @@ public class DeviceGroup extends BaseEntity {
     private AppUser appUser;
 
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE)
-    @OneToMany(targetEntity = Device.class, fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
+    @OneToMany(targetEntity = Device.class, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Device> deviceList;
 
 
